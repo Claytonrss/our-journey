@@ -34,10 +34,14 @@ export interface AppState {
   viewMode: 'story' | 'free';
   isPlaying: boolean;
   currentTrack: CurrentTrack | null;
+  isPinValidated: boolean;
+  useLocalAudio: boolean;
 
   // Ações
   setActiveMemoryId: (id: string | null) => void;
   setViewMode: (mode: 'story' | 'free') => void;
   setIsPlaying: (playing: boolean) => void;
   setCurrentTrack: (track: CurrentTrack | null) => void;
+  setPinValidated: (status: boolean) => void;
+  setUseLocalAudio: (status: boolean) => void;
 }
