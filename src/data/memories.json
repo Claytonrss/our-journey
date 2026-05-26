@@ -1,0 +1,48 @@
+[
+  {
+    "id": "1",
+    "title": "Primeira Viagem a Paris",
+    "date": "2024-05-15",
+    "coordinates": {
+      "lat": 48.8584,
+      "lng": 2.2945
+    },
+    "isSpecialPin": true,
+    "description": "Nossa primeira viagem inesquecível à Torre Eiffel.",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+        "alt": "Foto da Torre Eiffel",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "audioConfig": {
+      "spotifyUri": "spotify:track:4PTG3Z6ehGkBF3zI7YgR7u",
+      "localFallbackPath": "/audio/paris-song.mp3"
+    }
+  },
+  {
+    "id": "2",
+    "title": "Aventura em Quioto",
+    "date": "2025-10-10",
+    "coordinates": {
+      "lat": 35.0116,
+      "lng": 135.7681
+    },
+    "isSpecialPin": false,
+    "description": "Caminhada pelos templos e ruas tradicionais.",
+    "images": [
+      {
+        "url": "https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg",
+        "alt": "Templo em Quioto",
+        "width": 800,
+        "height": 600
+      }
+    ],
+    "audioConfig": {
+      "spotifyUri": "spotify:track:3n3Ppam7vgaVa1iaRUc9Lp",
+      "localFallbackPath": "/audio/kyoto-song.mp3"
+    }
+  }
+]
