@@ -1,15 +1,43 @@
 @import 'tailwindcss';
+@import 'mapbox-gl/dist/mapbox-gl.css';
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --color-brand-gold: #d4a853;
+  --color-brand-rose: #e8a598;
+  --color-brand-deep: #2d1b0e;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
+  --color-brand-gold: var(--color-brand-gold);
+  --color-brand-rose: var(--color-brand-rose);
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
+}
+
+@keyframes pin-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px rgba(212, 168, 83, 0.6));
+    transform: scale(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 14px rgba(232, 165, 152, 0.8));
+    transform: scale(1.08);
+  }
+}
+
+@keyframes pin-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 3px rgba(212, 168, 83, 0.3));
+  }
+  50% {
+    filter: drop-shadow(0 0 8px rgba(212, 168, 83, 0.5));
+  }
 }
 
 @media (prefers-color-scheme: dark) {
