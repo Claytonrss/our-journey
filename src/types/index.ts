@@ -31,6 +31,7 @@ export interface CurrentTrack {
 
 export interface AppState {
   activeMemoryId: string | null;
+  selectedMemoryId: string | null;
   viewMode: 'story' | 'free';
   isPlaying: boolean;
   currentTrack: CurrentTrack | null;
@@ -39,6 +40,7 @@ export interface AppState {
 
   // Ações
   setActiveMemoryId: (id: string | null) => void;
+  setSelectedMemoryId: (id: string | null) => void;
   setViewMode: (mode: 'story' | 'free') => void;
   setIsPlaying: (playing: boolean) => void;
   setCurrentTrack: (track: CurrentTrack | null) => void;
