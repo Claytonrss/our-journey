@@ -60,6 +60,13 @@ export class SpotifyService {
     await this.loadScript();
 
     return new Promise((resolve, reject) => {
+      let settled = false;
+      const settle = (fn: () => void) => {
+        if (settled) return;
+        settled = true;
+        fn();
+      };
+
       const onReady = () => {
         try {
           this.player = new window.Spotify!.Player({
@@ -73,7 +80,7 @@ export class SpotifyService {
             ({ device_id }: { device_id: string }) => {
               this.deviceId = device_id;
               this.emit('ready', { device_id });
-              resolve();
+              settle(() => resolve());
             },
           );
 
@@ -90,7 +97,7 @@ export class SpotifyService {
             ({ message }: { message: string }) => {
               console.info('Spotify SDK initialization error:', message);
               this.emit('initialization_error');
-              reject(new Error(message));
+              settle(() => reject(new Error(message)));
             },
           );
 
@@ -99,7 +106,7 @@ export class SpotifyService {
             ({ message }: { message: string }) => {
               console.info('Spotify SDK authentication error:', message);
               this.emit('authentication_error');
-              reject(new Error(message));
+              settle(() => reject(new Error(message)));
             },
           );
 
@@ -111,7 +118,7 @@ export class SpotifyService {
                 message,
               );
               this.emit('account_error');
-              reject(new Error(message));
+              settle(() => reject(new Error(message)));
             },
           );
 
@@ -121,7 +128,7 @@ export class SpotifyService {
 
           this.player.connect();
         } catch (err) {
-          reject(err);
+          settle(() => reject(err));
         }
       };
 

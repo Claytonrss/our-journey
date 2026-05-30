@@ -4,7 +4,9 @@ import Spotify from 'next-auth/providers/spotify';
 const configuredAuthUrl =
   process.env.AUTH_URL ??
   process.env.NEXTAUTH_URL ??
-  (process.env.NODE_ENV === 'development' ? 'http://127.0.0.1:3000' : undefined);
+  (process.env.NODE_ENV === 'development'
+    ? 'http://127.0.0.1:3000'
+    : undefined);
 
 const canonicalAuthUrl = (() => {
   if (!configuredAuthUrl) {

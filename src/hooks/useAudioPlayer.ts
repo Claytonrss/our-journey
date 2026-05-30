@@ -125,7 +125,9 @@ export function useAudioPlayer(): AudioPlayerHook {
       setUseLocalAudio(true);
     });
 
-    spotify.init(session.accessToken);
+    spotify.init(session.accessToken).catch(() => {
+      setUseLocalAudio(true);
+    });
 
     return () => {
       spotify.disconnect();
