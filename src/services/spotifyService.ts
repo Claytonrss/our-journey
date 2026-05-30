@@ -173,7 +173,7 @@ export class SpotifyService {
       `https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`,
       {
         method: 'PUT',
-        body: JSON.stringify({ uris: [spotifyUri] }),
+        body: JSON.stringify({ context_uri: spotifyUri }),
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${accessToken}`,
