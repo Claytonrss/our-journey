@@ -1,6 +1,7 @@
 'use client';
 
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { motion } from 'framer-motion';
 import type { Memory } from '@/types';
 
 interface NavigationOverlayProps {
@@ -32,37 +33,75 @@ export function NavigationOverlay({
   };
 
   return (
-    <div
-      className="fixed bottom-8 left-1/2 -translate-x-1/2 z-10 flex items-center gap-5 rounded-full px-6 py-3 border border-white/10"
+    <motion.div
+      className="fixed bottom-0 left-0 right-0 z-10 flex items-center justify-between"
       style={{
-        background: 'rgba(45, 27, 14, 0.75)',
-        backdropFilter: 'blur(12px)',
+        height: '72px',
+        borderRadius: '20px 20px 0 0',
+        background: 'rgba(17,17,17,0.85)',
+        backdropFilter: 'blur(20px)',
+        WebkitBackdropFilter: 'blur(20px)',
+        borderTop: '1px solid rgba(212,175,55,0.15)',
+        padding: '0 24px',
       }}
+      initial={{ y: 12, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
     >
       <button
         onClick={handlePrev}
-        className="p-2 text-[var(--color-brand-gold)] hover:text-[var(--color-brand-rose)] transition-all duration-300"
+        className="flex items-center justify-center transition-all"
+        style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          background: 'rgba(212,175,55,0.1)',
+          border: '1px solid rgba(212,175,55,0.2)',
+          color: 'var(--gold)',
+        }}
         aria-label="Memória anterior"
       >
-        <ChevronLeft size={24} />
+        <ChevronLeft size={20} />
       </button>
 
-      <div className="text-center min-w-[180px]">
-        <p className="text-[var(--color-brand-gold)] font-medium truncate text-sm uppercase tracking-wider">
+      <div className="text-center flex-1 mx-4">
+        <p
+          className="truncate"
+          style={{
+            fontFamily: 'var(--font-playfair)',
+            fontSize: '15px',
+            color: 'var(--text-primary)',
+          }}
+        >
           {currentMemory?.title || 'Nenhuma memória'}
         </p>
-        <p className="text-[var(--color-brand-rose)] text-xs opacity-70">
-          {currentIndex + 1} / {memories.length}
+        <p
+          style={{
+            fontFamily: 'var(--font-inter)',
+            fontSize: '11px',
+            color: 'var(--text-secondary)',
+            marginTop: '2px',
+          }}
+        >
+          ◆ {currentIndex + 1} de {memories.length} ◆
         </p>
       </div>
 
       <button
         onClick={handleNext}
-        className="p-2 text-[var(--color-brand-gold)] hover:text-[var(--color-brand-rose)] transition-all duration-300"
+        className="flex items-center justify-center transition-all"
+        style={{
+          width: '40px',
+          height: '40px',
+          borderRadius: '50%',
+          background: 'rgba(212,175,55,0.1)',
+          border: '1px solid rgba(212,175,55,0.2)',
+          color: 'var(--gold)',
+        }}
         aria-label="Próxima memória"
       >
-        <ChevronRight size={24} />
+        <ChevronRight size={20} />
       </button>
-    </div>
+    </motion.div>
   );
 }

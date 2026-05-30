@@ -100,11 +100,13 @@ export default function MapPage() {
           />
         )}
       </AnimatePresence>
-      <AudioPlayer
-        isPlaying={isPlaying}
-        currentTrack={currentTrack}
-        onTogglePlay={togglePlay}
-      />
+      {!selectedMemory && (
+        <AudioPlayer
+          isPlaying={isPlaying}
+          currentTrack={currentTrack}
+          onTogglePlay={togglePlay}
+        />
+      )}
     </main>
   );
 }

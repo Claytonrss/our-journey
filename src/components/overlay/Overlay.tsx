@@ -40,50 +40,10 @@ function MobileOverlay({ memory, onClose }: OverlayContentProps) {
   };
 
   return (
-    <motion.div
-      className="fixed inset-x-0 bottom-0 z-20 h-[70vh] bg-gradient-to-b from-gray-900/95 to-black/95 backdrop-blur-md rounded-t-3xl shadow-2xl"
-      initial={{ y: '100%' }}
-      animate={{ y: 0 }}
-      exit={{ y: '100%' }}
-      transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-      drag="y"
-      dragControls={dragControls}
-      dragListener={false}
-      dragConstraints={{ top: 0, bottom: 0 }}
-      dragElastic={0.2}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="flex flex-col h-full">
-        <div className="flex items-center justify-between p-4 border-b border-white/10 relative">
-          <div
-            className="w-12 h-1 bg-gray-600 rounded-full mx-auto cursor-grab active:cursor-grabbing"
-            onPointerDown={(e) => dragControls.start(e)}
-          />
-          <button
-            onClick={onClose}
-            className="absolute right-4 p-2 text-gray-400 hover:text-white transition-colors"
-            aria-label="Fechar painel"
-          >
-            <X size={20} />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto p-6 space-y-6">
-          <MemoryContent memory={memory} />
-          {memory.images.length > 0 && (
-            <MasonryGallery images={memory.images} />
-          )}
-        </div>
-      </div>
-    </motion.div>
-  );
-}
-
-function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
-  return (
     <>
       <motion.div
-        className="fixed inset-0 z-30 bg-black/20"
+        className="fixed inset-0 z-20"
+        style={{ background: 'rgba(10,10,10,0.6)' }}
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
@@ -91,27 +51,120 @@ function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
       />
 
       <motion.div
-        className="fixed top-0 right-0 z-40 h-full w-full max-w-md bg-gradient-to-l from-gray-900/95 to-black/95 backdrop-blur-md shadow-2xl"
+        className="fixed inset-x-0 bottom-0 z-30 shadow-2xl flex flex-col"
+        style={{
+          height: '70vh',
+          background: '#111111',
+          borderRadius: '28px 28px 0 0',
+        }}
+        initial={{ y: '100%' }}
+        animate={{ y: 0 }}
+        exit={{ y: '100%' }}
+        transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+        drag="y"
+        dragControls={dragControls}
+        dragListener={false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={0.2}
+        onDragEnd={handleDragEnd}
+      >
+        <div className="relative shrink-0" style={{ height: '48px' }}>
+          <div
+            className="absolute inset-0 pointer-events-none"
+            style={{
+              background:
+                'linear-gradient(to bottom, rgba(10,10,10,0.9), transparent)',
+              borderRadius: '28px 28px 0 0',
+            }}
+          />
+        </div>
+
+        <div className="shrink-0 flex items-center justify-center pb-2 relative">
+          <div
+            className="cursor-grab active:cursor-grabbing"
+            style={{
+              width: '36px',
+              height: '4px',
+              background: 'rgba(212,175,55,0.25)',
+              borderRadius: '2px',
+            }}
+            onPointerDown={(e) => dragControls.start(e)}
+          />
+          <button
+            onClick={onClose}
+            className="absolute right-6 p-2 transition-colors"
+            style={{ color: 'var(--text-secondary)' }}
+            aria-label="Fechar painel"
+          >
+            <X size={18} />
+          </button>
+        </div>
+
+        <div
+          className="flex-1 overflow-y-auto space-y-6"
+          style={{ padding: '0 24px 24px' }}
+        >
+          <MemoryContent memory={memory} />
+          {memory.images.length > 0 && (
+            <MasonryGallery images={memory.images} />
+          )}
+        </div>
+      </motion.div>
+    </>
+  );
+}
+
+function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
+  return (
+    <>
+      <motion.div
+        className="fixed inset-0 z-30"
+        style={{ background: 'rgba(10,10,10,0.4)' }}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        exit={{ opacity: 0 }}
+        onClick={onClose}
+      />
+
+      <motion.div
+        className="fixed top-0 right-0 z-40 h-full w-full max-w-md shadow-2xl"
+        style={{ background: '#111111' }}
         initial={{ x: '100%' }}
         animate={{ x: 0 }}
         exit={{ x: '100%' }}
         transition={{ type: 'spring', damping: 30, stiffness: 300 }}
       >
         <div className="flex flex-col h-full">
-          <div className="flex items-center justify-between p-6 border-b border-white/10">
-            <h3 className="text-sm font-medium text-gray-400 uppercase tracking-wider">
+          <div
+            className="flex items-center justify-between"
+            style={{
+              padding: '24px',
+              borderBottom: '1px solid rgba(212,175,55,0.1)',
+            }}
+          >
+            <h3
+              style={{
+                fontFamily: 'var(--font-playfair)',
+                fontSize: '14px',
+                color: 'var(--text-secondary)',
+              }}
+            >
               Detalhes da Memória
             </h3>
             <button
               onClick={onClose}
-              className="p-2 text-gray-400 hover:text-white transition-colors"
+              className="p-2 transition-colors"
+              style={{ color: 'var(--text-secondary)' }}
               aria-label="Fechar painel"
             >
               <X size={20} />
             </button>
           </div>
 
-          <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          <div
+            className="flex-1 overflow-y-auto space-y-6"
+            style={{ padding: '24px' }}
+          >
             <MemoryContent memory={memory} />
             {memory.images.length > 0 && (
               <MasonryGallery images={memory.images} />

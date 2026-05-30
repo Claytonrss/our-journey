@@ -17,9 +17,6 @@ export const MemoryPin = React.memo(function MemoryPin({
 }: MemoryPinProps) {
   const { lat, lng } = memory.coordinates;
 
-  const pinFill = memory.isSpecialPin ? '#d4a853' : '#e8a598';
-  const pinStroke = memory.isSpecialPin ? '#b8912f' : '#c47d6e';
-
   return (
     <Marker
       longitude={lng}
@@ -31,38 +28,60 @@ export const MemoryPin = React.memo(function MemoryPin({
       }}
     >
       <button
-        className="flex flex-col items-center transition-all duration-500"
+        className="flex flex-col items-center transition-all duration-500 relative"
         style={{
-          animation: isActive ? 'pin-pulse 2s ease-in-out infinite' : undefined,
           filter: isActive
-            ? undefined
-            : 'drop-shadow(0 0 3px rgba(212, 168, 83, 0.3))',
+            ? 'drop-shadow(0 0 8px rgba(212, 175, 55, 0.5))'
+            : 'drop-shadow(0 0 3px rgba(212, 175, 55, 0.2))',
         }}
         aria-label={`Ver memória: ${memory.title}`}
       >
+        {memory.isSpecialPin && (
+          <span
+            className="absolute rounded-full"
+            style={{
+              width: '36px',
+              height: '36px',
+              top: '0',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              border: '2px solid var(--gold)',
+              animation: 'pulse-ring 2s ease-out infinite',
+            }}
+          />
+        )}
+
         <svg
-          width={isActive ? 44 : 32}
-          height={isActive ? 54 : 40}
+          width={isActive ? 40 : 32}
+          height={isActive ? 44 : 36}
           viewBox="0 0 32 40"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
           className="transition-all duration-500"
         >
           <path
-            d="M16 0C8.268 0 2 6.268 2 14c0 5.02 2.327 9.646 6 13.09V40l8-6 8 6V27.09C27.673 23.646 30 19.02 30 14 30 6.268 23.732 0 16 0Z"
-            fill={pinFill}
-            stroke={pinStroke}
+            d="M16 0C8.268 0 2 6.268 2 14c0 7.5 14 26 14 26s14-18.5 14-26C30 6.268 23.732 0 16 0Z"
+            fill="var(--gold)"
+            stroke="rgba(180,150,50,0.6)"
             strokeWidth={0.5}
           />
-          <path
-            d="M16 8c-1.77 0-3.2 1.43-3.2 3.2 0 .87.35 1.66.91 2.24l.59.56.01.01L16 15.9l1.69-1.89.01-.01.59-.56c.56-.58.91-1.37.91-2.24C19.2 9.43 17.77 8 16 8Z"
-            fill={memory.isSpecialPin ? '#2d1b0e' : '#fff'}
-            opacity={memory.isSpecialPin ? 0.6 : 0.9}
-          />
+          <circle cx="16" cy="14" r="4" fill="white" opacity={0.9} />
         </svg>
 
         {isActive && (
-          <span className="mt-1 text-[10px] font-medium text-[var(--color-brand-gold)] tracking-wide uppercase bg-black/60 px-2 py-0.5 rounded-full backdrop-blur-sm whitespace-nowrap">
+          <span
+            className="mt-1 whitespace-nowrap"
+            style={{
+              fontFamily: 'var(--font-playfair)',
+              fontSize: '13px',
+              color: 'var(--text-primary)',
+              background: 'rgba(10,10,10,0.6)',
+              backdropFilter: 'blur(8px)',
+              WebkitBackdropFilter: 'blur(8px)',
+              borderRadius: '8px',
+              padding: '4px 12px',
+            }}
+          >
             {memory.title}
           </span>
         )}
