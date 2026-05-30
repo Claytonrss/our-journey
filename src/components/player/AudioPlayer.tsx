@@ -1,99 +1,31 @@
 'use client';
 
-import { Pause, Play, Music } from 'lucide-react';
-import type { AudioPlayerHook } from '@/hooks/useAudioPlayer';
+import { Pause, Play } from 'lucide-react';
 
 interface AudioPlayerProps {
   isPlaying: boolean;
-  currentTrack: AudioPlayerHook['currentTrack'];
   onTogglePlay: () => void;
 }
 
-export function AudioPlayer({
-  isPlaying,
-  currentTrack,
-  onTogglePlay,
-}: AudioPlayerProps) {
-  if (!currentTrack) return null;
-
-  const isUnavailable = currentTrack.title === 'Áudio indisponível';
-
+export function AudioPlayer({ isPlaying, onTogglePlay }: AudioPlayerProps) {
   return (
-    <div
-      className="fixed z-30 bottom-[72px] left-0 right-0 flex items-center"
+    <button
+      onClick={onTogglePlay}
+      className="fixed z-30 flex items-center justify-center transition-all"
       style={{
-        background: 'rgba(212,175,55,0.06)',
-        borderTop: '1px solid rgba(212,175,55,0.1)',
-        padding: '12px 24px',
+        top: '16px',
+        left: '16px',
+        width: '40px',
+        height: '40px',
+        borderRadius: '50%',
+        background: 'rgba(17, 17, 17, 0.8)',
+        backdropFilter: 'blur(12px)',
+        border: '1px solid rgba(212, 175, 55, 0.15)',
+        color: 'var(--gold)',
       }}
+      aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
     >
-      <div
-        className="shrink-0 flex items-center justify-center"
-        style={{
-          width: '36px',
-          height: '36px',
-          borderRadius: '8px',
-          background: 'var(--bg-surface)',
-        }}
-      >
-        <Music size={16} style={{ color: 'var(--text-secondary)' }} />
-      </div>
-
-      <div className="flex-1 min-w-0 ml-3">
-        {isUnavailable ? (
-          <p
-            style={{
-              fontFamily: 'var(--font-inter)',
-              fontSize: '13px',
-              color: 'var(--text-secondary)',
-              opacity: 0.5,
-            }}
-          >
-            ♪ Trilha sonora
-          </p>
-        ) : (
-          <>
-            <p
-              className="truncate"
-              style={{
-                fontFamily: 'var(--font-inter)',
-                fontSize: '13px',
-                color: 'var(--text-primary)',
-              }}
-            >
-              {currentTrack.title}
-            </p>
-            {currentTrack.artist && (
-              <p
-                className="truncate"
-                style={{
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '11px',
-                  color: 'var(--text-secondary)',
-                }}
-              >
-                {currentTrack.artist}
-              </p>
-            )}
-          </>
-        )}
-      </div>
-
-      <button
-        onClick={onTogglePlay}
-        disabled={isUnavailable}
-        className="shrink-0 flex items-center justify-center transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-        style={{
-          width: '32px',
-          height: '32px',
-          borderRadius: '50%',
-          background: 'var(--gold)',
-          color: '#0a0a0a',
-        }}
-        aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
-      >
-        {isPlaying ? <Pause size={14} /> : <Play size={14} />}
-      </button>
-    </div>
+      {isPlaying ? <Pause size={16} /> : <Play size={16} />}
+    </button>
   );
 }

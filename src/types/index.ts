@@ -5,11 +5,6 @@ export interface Image {
   height: number;
 }
 
-export interface AudioConfig {
-  spotifyUri: string;
-  localFallbackPath: string;
-}
-
 export interface Memory {
   id: string;
   title: string;
@@ -21,7 +16,6 @@ export interface Memory {
   isSpecialPin: boolean;
   description: string;
   images: Image[];
-  audioConfig: AudioConfig;
 }
 
 export interface CurrentTrack {

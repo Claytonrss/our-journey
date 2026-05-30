@@ -31,7 +31,7 @@ export default function MapPage() {
   const webglSupported = useWebGLSupport();
   const isMobile = useIsMobile();
   const initializedRef = useRef(false);
-  const { isPlaying, currentTrack, togglePlay, playTrack } = useAudioPlayer();
+  const { isPlaying, togglePlay } = useAudioPlayer();
 
   const selectedMemory =
     memories.find((m) => m.id === selectedMemoryId) || null;
@@ -55,13 +55,6 @@ export default function MapPage() {
       }
     });
   }, [isPinValidated, router, setActiveMemoryId]);
-
-  useEffect(() => {
-    if (!selectedMemory) return;
-
-    const { spotifyUri, localFallbackPath } = selectedMemory.audioConfig;
-    playTrack(spotifyUri, localFallbackPath);
-  }, [selectedMemory?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (webglSupported === null) {
     return null;
@@ -100,13 +93,7 @@ export default function MapPage() {
           />
         )}
       </AnimatePresence>
-      {!selectedMemory && (
-        <AudioPlayer
-          isPlaying={isPlaying}
-          currentTrack={currentTrack}
-          onTogglePlay={togglePlay}
-        />
-      )}
+      <AudioPlayer isPlaying={isPlaying} onTogglePlay={togglePlay} />
     </main>
   );
 }

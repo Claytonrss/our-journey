@@ -7,6 +7,7 @@ import {
   SpotifyService,
   SpotifyPlaybackState,
 } from '@/services/spotifyService';
+import { HTML5AudioService } from '@/services/html5AudioService';
 
 export interface AudioPlayerHook {
   isPlaying: boolean;
@@ -25,13 +26,40 @@ export function useAudioPlayer(): AudioPlayerHook {
   } = useAppStore();
 
   const spotifyRef = useRef<SpotifyService | null>(null);
+  const html5Ref = useRef<HTML5AudioService | null>(null);
 
   const togglePlay = useCallback(() => {
+    if (useLocalAudio) {
+      const html5 = html5Ref.current;
+      if (!html5) return;
+
+      if (isPlaying) {
+        html5.pause();
+        setIsPlaying(false);
+      } else {
+        html5.resume();
+        setIsPlaying(true);
+      }
+      return;
+    }
+
     spotifyRef.current?.togglePlay();
-  }, []);
+  }, [useLocalAudio, isPlaying, setIsPlaying]);
 
   useEffect(() => {
-    if (useLocalAudio || !session?.accessToken) return;
+    if (useLocalAudio) {
+      const html5 = new HTML5AudioService();
+      html5Ref.current = html5;
+      html5.play('/audio/background.mp3');
+      setIsPlaying(true);
+      setCurrentTrack({ title: 'Reproduzindo', artist: '' });
+
+      return () => {
+        html5.stop();
+      };
+    }
+
+    if (!session?.accessToken) return;
 
     const spotify = new SpotifyService();
     spotifyRef.current = spotify;
