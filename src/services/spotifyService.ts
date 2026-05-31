@@ -32,6 +32,9 @@ export interface SpotifyPlaybackState {
     current_track: {
       name: string;
       artists: { name: string }[];
+      album: {
+        images: { url: string }[];
+      };
     };
   };
 }
@@ -39,6 +42,8 @@ export interface SpotifyPlaybackState {
 export type SpotifyEventCallback = (payload: unknown) => void;
 
 const SPOTIFY_SDK_URL = 'https://sdk.scdn.co/spotify-player.js';
+
+export type TokenProvider = () => Promise<string>;
 
 export class SpotifyService {
   private player: SpotifyPlayer | null = null;
@@ -56,7 +61,7 @@ export class SpotifyService {
     (this.listeners.get(event) || []).forEach((cb) => cb(payload));
   }
 
-  async init(accessToken: string): Promise<void> {
+  async init(getToken: TokenProvider): Promise<void> {
     await this.loadScript();
 
     return new Promise((resolve, reject) => {
@@ -71,7 +76,11 @@ export class SpotifyService {
         try {
           this.player = new window.Spotify!.Player({
             name: 'Our Journey',
-            getOAuthToken: (cb) => cb(accessToken),
+            getOAuthToken: (cb) => {
+              getToken()
+                .then(cb)
+                .catch(() => cb(''));
+            },
             volume: 0.5,
           });
 
@@ -166,8 +175,12 @@ export class SpotifyService {
     });
   }
 
-  async play(spotifyUri: string, accessToken: string): Promise<void> {
+  async play(spotifyUri: string): Promise<void> {
     if (!this.deviceId) return;
+
+    const res = await fetch('/api/spotify-token');
+    if (!res.ok) return;
+    const { accessToken } = await res.json();
 
     await fetch(
       `https://api.spotify.com/v1/me/player/play?device_id=${this.deviceId}`,

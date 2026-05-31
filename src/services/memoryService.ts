@@ -1,16 +1,17 @@
-import { Memory } from '@/types';
+import { Memory, MemorySchema } from '@/types';
+import { z } from 'zod';
 
 export const memoryService = {
   getMemories: async (): Promise<Memory[]> => {
     try {
-      // Aqui simulamos uma chamada assíncrona ou carregamento de módulo.
-      // Em Next.js (App Router), podemos importar o JSON estaticamente no cliente/servidor
-      // ou utilizar 'fetch' caso estivesse na pasta 'public'.
-      // Como optamos pela pasta src/data, faremos um dynamic import ou importação direta.
       const data = await import('@/data/memories.json');
-      return data.default as Memory[];
+      const listSchema = z.array(MemorySchema);
+      return listSchema.parse(data.default);
     } catch (error) {
-      console.error('Erro ao carregar o arquivo memories.json', error);
+      console.error(
+        'Erro ao carregar e validar o arquivo memories.json',
+        error,
+      );
       return [];
     }
   },

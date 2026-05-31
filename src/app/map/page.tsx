@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/hooks/useAppStore';
@@ -8,14 +8,15 @@ import { useWebGLSupport } from '@/hooks/useWebGLSupport';
 import { useIsMobile } from '@/hooks/useIsMobile';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
 import { memoryService } from '@/services/memoryService';
-import { MapView } from '@/components/map/MapView';
+import { MapView } from '@/components/features/map/MapView';
 import {
   MapErrorBoundary,
   MapFallback,
-} from '@/components/map/MapErrorBoundary';
-import { NavigationOverlay } from '@/components/map/NavigationOverlay';
-import { Overlay } from '@/components/overlay/Overlay';
-import { AudioPlayer } from '@/components/player/AudioPlayer';
+} from '@/components/features/map/MapErrorBoundary';
+import { NavigationOverlay } from '@/components/features/map/NavigationOverlay';
+import { Overlay } from '@/components/features/overlay/Overlay';
+import { AudioPlayer } from '@/components/features/player/AudioPlayer';
+import { IntroScreen } from '@/components/features/IntroScreen';
 import type { Memory } from '@/types';
 
 export default function MapPage() {
@@ -25,6 +26,7 @@ export default function MapPage() {
     setActiveMemoryId,
     selectedMemoryId,
     setSelectedMemoryId,
+    setViewMode,
     isPinValidated,
   } = useAppStore();
   const router = useRouter();
@@ -32,6 +34,18 @@ export default function MapPage() {
   const isMobile = useIsMobile();
   const initializedRef = useRef(false);
   const { isPlaying, togglePlay } = useAudioPlayer();
+
+  const introSeenOnMount =
+    typeof window !== 'undefined' &&
+    sessionStorage.getItem('intro-seen') === 'true';
+
+  const [introComplete, setIntroComplete] = useState(introSeenOnMount);
+
+  const handleIntroComplete = useCallback(() => {
+    setActiveMemoryId(memories[0].id);
+    setViewMode('story');
+    setIntroComplete(true);
+  }, [memories, setActiveMemoryId, setViewMode]);
 
   const selectedMemory =
     memories.find((m) => m.id === selectedMemoryId) || null;
@@ -50,11 +64,13 @@ export default function MapPage() {
     memoryService.getMemories().then((data) => {
       setMemories(data);
       if (data.length > 0 && !initializedRef.current) {
-        setActiveMemoryId(data[0].id);
+        if (introSeenOnMount) {
+          setActiveMemoryId(data[0].id);
+        }
         initializedRef.current = true;
       }
     });
-  }, [isPinValidated, router, setActiveMemoryId]);
+  }, [isPinValidated, router, setActiveMemoryId, introSeenOnMount]);
 
   if (webglSupported === null) {
     return null;
@@ -66,8 +82,8 @@ export default function MapPage() {
     );
   }
 
-  if (!process.env.NEXT_PUBLIC_MAPBOX_TOKEN) {
-    return <MapFallback message="Token do Mapbox não configurado." />;
+  if (!introComplete) {
+    return <IntroScreen onComplete={handleIntroComplete} />;
   }
 
   return (
@@ -83,6 +99,7 @@ export default function MapPage() {
         memories={memories}
         activeMemoryId={activeMemoryId}
         onNavigate={setActiveMemoryId}
+        onTitleClick={() => setSelectedMemoryId(activeMemoryId)}
       />
       <AnimatePresence>
         {selectedMemory && (

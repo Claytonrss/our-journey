@@ -35,6 +35,7 @@ const spotifyCallbackUrl = canonicalAuthUrl
 declare module 'next-auth' {
   interface Session {
     accessToken?: string;
+    error?: 'RefreshAccessTokenError';
     user: {
       id?: string;
     } & DefaultSession['user'];
@@ -144,6 +145,9 @@ const nextAuth = NextAuth({
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
+      if (token.error === 'RefreshAccessTokenError') {
+        session.error = 'RefreshAccessTokenError';
+      }
       return session;
     },
   },

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useRef, useCallback } from 'react';
+import { useState, useRef, useCallback, useEffect } from 'react';
 import Map, { MapRef } from 'react-map-gl/mapbox';
 import { MemoryPin } from './MemoryPin';
 import { useMapFlyTo } from '@/hooks/useMapFlyTo';
+import { MapFallback } from './MapErrorBoundary';
 import type { Memory } from '@/types';
 
 interface MapViewProps {
@@ -21,6 +22,26 @@ export function MapView({
 }: MapViewProps) {
   const mapRef = useRef<MapRef>(null);
   const [isMapLoaded, setIsMapLoaded] = useState(false);
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    fetch('/api/mapbox-token')
+      .then((res) => {
+        if (!res.ok) throw new Error('Falha ao obter o token do mapa');
+        return res.json();
+      })
+      .then((data) => {
+        setMapboxToken(data.token);
+        setIsLoading(false);
+      })
+      .catch((err) => {
+        console.error(err);
+        setError(err.message || 'Erro ao obter token do Mapbox');
+        setIsLoading(false);
+      });
+  }, []);
 
   useMapFlyTo({
     mapRef,
@@ -33,6 +54,16 @@ export function MapView({
     setIsMapLoaded(true);
   }, []);
 
+  if (isLoading) {
+    return <MapFallback message="Carregando mapa..." />;
+  }
+
+  if (error || !mapboxToken) {
+    return (
+      <MapFallback message={error || 'Token do Mapbox não configurado.'} />
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-0">
       <Map
@@ -43,7 +74,7 @@ export function MapView({
           zoom: 2,
         }}
         mapStyle={MAP_STYLE}
-        mapboxAccessToken={process.env.NEXT_PUBLIC_MAPBOX_TOKEN}
+        mapboxAccessToken={mapboxToken}
         onLoad={handleLoad}
         reuseMaps
         attributionControl={false}

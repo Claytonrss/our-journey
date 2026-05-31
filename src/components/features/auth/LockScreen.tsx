@@ -11,9 +11,19 @@ interface LockScreenProps {
   hasSession: boolean;
 }
 
+const STORAGE_KEY = 'our-journey-audio-preference';
+
 export function LockScreen({ hasSession }: LockScreenProps) {
   const router = useRouter();
-  const [isSkipping, setIsSkipping] = useState(false);
+  const [showPin, setShowPin] = useState(false);
+  const [audioMode, setAudioMode] = useState<'local' | 'spotify'>(() => {
+    if (hasSession) return 'spotify';
+    if (typeof window === 'undefined') return 'local';
+    const saved = localStorage.getItem(STORAGE_KEY);
+    if (saved === 'spotify') return 'spotify';
+    if (saved === 'local') return 'local';
+    return 'local';
+  });
   const [pin, setPin] = useState('');
   const [isError, setIsError] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -21,7 +31,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
 
   const { setPinValidated, setUseLocalAudio } = useAppStore();
 
-  const showPinInput = hasSession || isSkipping;
+  const showPinInput = showPin || hasSession;
 
   useEffect(() => {
     if (showPinInput && inputRefs.current[0]) {
@@ -36,10 +46,9 @@ export function LockScreen({ hasSession }: LockScreenProps) {
     startTransition(async () => {
       const isValid = await validatePin(pin);
       if (isValid) {
+        localStorage.setItem(STORAGE_KEY, audioMode);
         setPinValidated(true);
-        if (isSkipping || !hasSession) {
-          setUseLocalAudio(true);
-        }
+        setUseLocalAudio(audioMode === 'local');
         router.push('/map');
       } else {
         setIsError(true);
@@ -195,30 +204,134 @@ export function LockScreen({ hasSession }: LockScreenProps) {
         </div>
 
         {!showPinInput ? (
-          <div className="space-y-4 mt-8 flex flex-col items-center">
-            <button
-              onClick={() => signIn('spotify')}
-              className="w-full py-3 px-4 text-black font-medium transition-all flex items-center justify-center gap-2"
-              style={{
-                background: '#1DB954',
-                borderRadius: '14px',
-                fontFamily: 'var(--font-inter)',
-                fontSize: '15px',
-              }}
-            >
-              Conectar com Spotify
-            </button>
-            <button
-              onClick={() => setIsSkipping(true)}
-              className="transition-colors underline underline-offset-4 text-sm mt-4"
-              style={{
-                color: 'var(--text-secondary)',
-                fontFamily: 'var(--font-inter)',
-              }}
-            >
-              Entrar sem Spotify (Offline)
-            </button>
-          </div>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
+            className="mt-8 space-y-6"
+          >
+            <div className="flex flex-col items-center gap-3">
+              <div className="flex items-center gap-3">
+                <span
+                  className="text-xs uppercase tracking-wider transition-colors duration-300 select-none"
+                  style={{
+                    fontFamily: 'var(--font-inter)',
+                    color:
+                      audioMode === 'local'
+                        ? 'var(--gold)'
+                        : 'var(--text-secondary)',
+                    fontWeight: audioMode === 'local' ? 500 : 400,
+                  }}
+                >
+                  Áudio Local
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() =>
+                    setAudioMode(audioMode === 'local' ? 'spotify' : 'local')
+                  }
+                  className="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none flex-shrink-0"
+                  style={{
+                    backgroundColor:
+                      audioMode === 'spotify'
+                        ? 'rgba(29, 185, 84, 0.5)'
+                        : 'rgba(212, 175, 55, 0.3)',
+                  }}
+                  aria-label="Alternar modo de áudio"
+                >
+                  <motion.span
+                    className="absolute top-0.5 w-5 h-5 rounded-full shadow-md"
+                    animate={{
+                      left: audioMode === 'spotify' ? '26px' : '2px',
+                    }}
+                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
+                    style={{
+                      backgroundColor:
+                        audioMode === 'spotify' ? '#1DB954' : 'var(--gold)',
+                    }}
+                  />
+                </button>
+
+                <span
+                  className="text-xs uppercase tracking-wider transition-colors duration-300 select-none"
+                  style={{
+                    fontFamily: 'var(--font-inter)',
+                    color:
+                      audioMode === 'spotify'
+                        ? '#1DB954'
+                        : 'var(--text-secondary)',
+                    fontWeight: audioMode === 'spotify' ? 500 : 400,
+                  }}
+                >
+                  Spotify
+                </span>
+              </div>
+
+              <p
+                className="text-xs text-center italic leading-relaxed transition-all duration-300"
+                style={{
+                  fontFamily: 'var(--font-inter)',
+                  color: 'var(--text-secondary)',
+                  maxWidth: '260px',
+                }}
+              >
+                {audioMode === 'local'
+                  ? 'música ambiente offline · sem necessidade de login'
+                  : 'playlist pessoal · sincronizada em tempo real'}
+              </p>
+            </div>
+
+            {hasSession ? (
+              <button
+                type="button"
+                onClick={() => setShowPin(true)}
+                className="w-full transition-all flex items-center justify-center"
+                style={{
+                  height: '52px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #C9A227, #D4AF37)',
+                  fontFamily: 'var(--font-inter)',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  color: '#0a0a0a',
+                }}
+              >
+                Continuar
+              </button>
+            ) : audioMode === 'spotify' ? (
+              <button
+                type="button"
+                onClick={() => signIn('spotify')}
+                className="w-full py-3 px-4 text-black font-medium transition-all flex items-center justify-center gap-2"
+                style={{
+                  background: '#1DB954',
+                  borderRadius: '14px',
+                  fontFamily: 'var(--font-inter)',
+                  fontSize: '15px',
+                }}
+              >
+                Conectar com Spotify
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowPin(true)}
+                className="w-full transition-all flex items-center justify-center"
+                style={{
+                  height: '52px',
+                  borderRadius: '14px',
+                  background: 'linear-gradient(135deg, #C9A227, #D4AF37)',
+                  fontFamily: 'var(--font-inter)',
+                  fontSize: '15px',
+                  fontWeight: 500,
+                  color: '#0a0a0a',
+                }}
+              >
+                Continuar Offline
+              </button>
+            )}
+          </motion.div>
         ) : (
           <motion.div
             initial={{ opacity: 0 }}
@@ -234,7 +347,9 @@ export function LockScreen({ hasSession }: LockScreenProps) {
                   marginBottom: '16px',
                 }}
               >
-                código de acesso
+                {audioMode === 'local'
+                  ? 'modo offline'
+                  : 'conectado ao spotify'}
               </p>
 
               <div

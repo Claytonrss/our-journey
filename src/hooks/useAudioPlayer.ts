@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useRef } from 'react';
-import { useSession } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { useAppStore } from '@/hooks/useAppStore';
 import {
   SpotifyService,
@@ -23,6 +23,7 @@ export function useAudioPlayer(): AudioPlayerHook {
     useLocalAudio,
     setIsPlaying,
     setCurrentTrack,
+    setUseLocalAudio,
   } = useAppStore();
 
   const spotifyRef = useRef<SpotifyService | null>(null);
@@ -47,6 +48,11 @@ export function useAudioPlayer(): AudioPlayerHook {
   }, [useLocalAudio, isPlaying, setIsPlaying]);
 
   useEffect(() => {
+    if (session?.error === 'RefreshAccessTokenError') {
+      signOut();
+      return;
+    }
+
     if (useLocalAudio) {
       const html5 = new HTML5AudioService();
       html5Ref.current = html5;
@@ -68,29 +74,44 @@ export function useAudioPlayer(): AudioPlayerHook {
       const s = state as SpotifyPlaybackState | null;
       if (s) {
         setIsPlaying(!s.paused);
+        const currentTrack = s.track_window.current_track;
+        const albumCover = currentTrack.album?.images?.[0]?.url;
         setCurrentTrack({
-          title: s.track_window.current_track.name,
-          artist: s.track_window.current_track.artists[0]?.name || '',
+          title: currentTrack.name,
+          artist: currentTrack.artists[0]?.name || '',
+          albumCover,
         });
       }
     });
 
+    spotify.on('authentication_error', () => {
+      spotify.disconnect();
+      setUseLocalAudio(true);
+    });
+
+    const getToken = async (): Promise<string> => {
+      const res = await fetch('/api/spotify-token');
+      if (!res.ok) return '';
+      const data = await res.json();
+      return data.accessToken || '';
+    };
+
     spotify
-      .init(session.accessToken)
+      .init(getToken)
       .then(() => {
         const playlistUri = process.env.NEXT_PUBLIC_SPOTIFY_PLAYLIST_URI;
         if (playlistUri) {
-          spotify.play(playlistUri, session.accessToken!);
+          spotify.play(playlistUri);
         }
       })
       .catch(() => {
-        console.info('Spotify SDK initialization failed');
+        setUseLocalAudio(true);
       });
 
     return () => {
       spotify.disconnect();
     };
-  }, [session, useLocalAudio, setIsPlaying, setCurrentTrack]);
+  }, [session, useLocalAudio, setIsPlaying, setCurrentTrack, setUseLocalAudio]);
 
   return { isPlaying, currentTrack, togglePlay };
 }

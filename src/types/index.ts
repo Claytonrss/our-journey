@@ -1,26 +1,34 @@
-export interface Image {
-  url: string;
-  alt: string;
-  width: number;
-  height: number;
-}
+import { z } from 'zod';
 
-export interface Memory {
-  id: string;
-  title: string;
-  date: string; // Formato YYYY-MM-DD
-  coordinates: {
-    lat: number;
-    lng: number;
-  };
-  isSpecialPin: boolean;
-  description: string;
-  images: Image[];
-}
+export const ImageSchema = z.object({
+  url: z.string(),
+  alt: z.string(),
+  width: z.number().int().positive(),
+  height: z.number().int().positive(),
+});
+
+export const MemorySchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  date: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, 'Data deve estar no formato YYYY-MM-DD'),
+  coordinates: z.object({
+    lat: z.number(),
+    lng: z.number(),
+  }),
+  isSpecialPin: z.boolean(),
+  description: z.string(),
+  images: z.array(ImageSchema),
+});
+
+export type Image = z.infer<typeof ImageSchema>;
+export type Memory = z.infer<typeof MemorySchema>;
 
 export interface CurrentTrack {
   title: string;
   artist: string;
+  albumCover?: string;
 }
 
 export interface AppState {
