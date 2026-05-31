@@ -28,6 +28,7 @@ if (canonicalAuthUrl) {
   process.env.NEXTAUTH_URL ??= canonicalAuthUrl;
 }
 
+// Redirect URI de produção: https://[seu-dominio].vercel.app/api/auth/callback/spotify
 const spotifyCallbackUrl = canonicalAuthUrl
   ? `${canonicalAuthUrl}/api/auth/callback/spotify`
   : undefined;
