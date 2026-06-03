@@ -70,16 +70,19 @@ export const MemoryPin = React.memo(function MemoryPin({
 
         {isActive && (
           <span
-            className="mt-1 whitespace-nowrap"
+            className="mt-2 whitespace-nowrap italic"
             style={{
-              fontFamily: 'var(--font-playfair)',
+              fontFamily: 'var(--font-editorial)',
               fontSize: '13px',
+              fontWeight: 500,
               color: 'var(--text-primary)',
-              background: 'rgba(10,10,10,0.6)',
-              backdropFilter: 'blur(8px)',
-              WebkitBackdropFilter: 'blur(8px)',
+              background: 'rgba(8,8,8,0.72)',
+              backdropFilter: 'blur(12px)',
+              WebkitBackdropFilter: 'blur(12px)',
               borderRadius: '8px',
-              padding: '4px 12px',
+              padding: '5px 14px',
+              boxShadow: 'none',
+              border: 'none',
             }}
           >
             {memory.title}

@@ -23,15 +23,15 @@ export function NavigationOverlay({
   const currentMemory = currentIndex >= 0 ? memories[currentIndex] : null;
 
   const handlePrev = () => {
-    const prevIndex =
-      currentIndex <= 0 ? memories.length - 1 : currentIndex - 1;
-    onNavigate(memories[prevIndex].id);
+    if (currentIndex > 0) {
+      onNavigate(memories[currentIndex - 1].id);
+    }
   };
 
   const handleNext = () => {
-    const nextIndex =
-      currentIndex >= memories.length - 1 ? 0 : currentIndex + 1;
-    onNavigate(memories[nextIndex].id);
+    if (currentIndex < memories.length - 1) {
+      onNavigate(memories[currentIndex + 1].id);
+    }
   };
 
   return (
@@ -41,9 +41,9 @@ export function NavigationOverlay({
         height: '76px',
         borderRadius: '24px 24px 0 0',
         background: 'rgba(17, 17, 17, 0.85)',
-        backdropFilter: 'blur(20px)',
-        WebkitBackdropFilter: 'blur(20px)',
-        borderTop: '1px solid rgba(212, 175, 55, 0.2)',
+        backdropFilter: 'blur(20px) saturate(150%)',
+        WebkitBackdropFilter: 'blur(20px) saturate(150%)',
+        borderTop: '1px solid var(--gold-line)',
         boxShadow: '0 -4px 24px -2px rgba(212, 175, 55, 0.12)',
         padding: '0 24px',
       }}
@@ -53,15 +53,20 @@ export function NavigationOverlay({
     >
       <button
         onClick={handlePrev}
-        className="flex items-center justify-center transition-all hover:bg-[rgba(212,175,55,0.2)] active:scale-95 cursor-pointer"
+        className="flex items-center justify-center transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default"
         style={{
           width: '48px',
           height: '48px',
           borderRadius: '50%',
-          background: 'rgba(212, 175, 55, 0.1)',
-          border: '1px solid rgba(212, 175, 55, 0.25)',
+          background:
+            currentIndex === 0 ? 'transparent' : 'rgba(212, 175, 55, 0.1)',
+          border:
+            currentIndex === 0
+              ? '1px solid rgba(212, 175, 55, 0.1)'
+              : '1px solid rgba(212, 175, 55, 0.25)',
           color: 'var(--gold)',
         }}
+        disabled={currentIndex === 0}
         aria-label="Memória anterior"
       >
         <ChevronLeft size={24} />
@@ -85,28 +90,48 @@ export function NavigationOverlay({
         </p>
         <p
           style={{
-            fontFamily: 'var(--font-inter)',
-            fontSize: '11px',
-            color: 'var(--text-secondary)',
             marginTop: '2px',
             letterSpacing: '0.05em',
+            color: 'var(--text-secondary)',
+            fontSize: '11px',
           }}
         >
-          ◆ {currentIndex + 1} de {memories.length} ◆
+          <span style={{ fontFamily: 'var(--font-ui)' }}>
+            ◆ {currentIndex + 1}
+          </span>
+          <span
+            style={{
+              fontFamily: 'var(--font-playfair)',
+              margin: '0 4px',
+              fontStyle: 'italic',
+            }}
+          >
+            de
+          </span>
+          <span style={{ fontFamily: 'var(--font-ui)' }}>
+            {memories.length} ◆
+          </span>
         </p>
       </button>
 
       <button
         onClick={handleNext}
-        className="flex items-center justify-center transition-all hover:bg-[rgba(212,175,55,0.2)] active:scale-95 cursor-pointer"
+        className="flex items-center justify-center transition-all cursor-pointer disabled:opacity-30 disabled:cursor-default"
         style={{
           width: '48px',
           height: '48px',
           borderRadius: '50%',
-          background: 'rgba(212, 175, 55, 0.1)',
-          border: '1px solid rgba(212, 175, 55, 0.25)',
+          background:
+            currentIndex === memories.length - 1
+              ? 'transparent'
+              : 'rgba(212, 175, 55, 0.1)',
+          border:
+            currentIndex === memories.length - 1
+              ? '1px solid rgba(212, 175, 55, 0.1)'
+              : '1px solid rgba(212, 175, 55, 0.25)',
           color: 'var(--gold)',
         }}
+        disabled={currentIndex === memories.length - 1}
         aria-label="Próxima memória"
       >
         <ChevronRight size={24} />

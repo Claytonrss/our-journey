@@ -7,21 +7,81 @@ import { useAppStore } from '@/hooks/useAppStore';
 interface AudioPlayerProps {
   isPlaying: boolean;
   onTogglePlay: () => void;
+  variant?: 'pill' | 'strip';
 }
 
-export function AudioPlayer({ isPlaying, onTogglePlay }: AudioPlayerProps) {
+export function AudioPlayer({
+  isPlaying,
+  onTogglePlay,
+  variant = 'pill',
+}: AudioPlayerProps) {
   const { currentTrack } = useAppStore();
 
   const title = currentTrack?.title || 'Nossa Trilha';
   const artist = currentTrack?.artist || 'Amor & Viagem';
   const albumCover = currentTrack?.albumCover;
 
+  if (variant === 'strip') {
+    return (
+      <div
+        className="flex items-center justify-between px-6 py-3 shrink-0"
+        style={{
+          background: 'var(--bg-elevated)',
+          borderTop: '1px solid rgba(212,175,55,0.08)',
+        }}
+      >
+        <div className="flex items-center flex-1 min-w-0">
+          <div className="relative w-10 h-10 rounded-full overflow-hidden flex items-center justify-center bg-neutral-900 border border-[rgba(212,175,55,0.15)] flex-shrink-0">
+            {albumCover ? (
+              <motion.img
+                src={albumCover}
+                alt="Capa do Álbum"
+                className="w-full h-full object-cover"
+                animate={isPlaying ? { rotate: 360 } : {}}
+                transition={{ repeat: Infinity, duration: 12, ease: 'linear' }}
+              />
+            ) : (
+              <motion.div
+                className="text-[rgba(212,175,55,0.8)]"
+                animate={isPlaying ? { rotate: 360 } : {}}
+                transition={{ repeat: Infinity, duration: 12, ease: 'linear' }}
+              >
+                <Music size={16} />
+              </motion.div>
+            )}
+          </div>
+          <div className="flex flex-col justify-center pl-3 pr-2 overflow-hidden flex-1 select-none">
+            <span className="text-[13px] font-medium text-neutral-100 truncate tracking-wide">
+              {title}
+            </span>
+            <span className="text-[10px] text-neutral-400 truncate mt-0.5 uppercase tracking-wider font-semibold">
+              {artist}
+            </span>
+          </div>
+        </div>
+        <button
+          onClick={onTogglePlay}
+          className="h-10 w-10 flex items-center justify-center flex-shrink-0 transition-all active:scale-90 cursor-pointer text-[rgba(212,175,55,0.95)] hover:text-white"
+          aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
+        >
+          <div className="w-10 h-10 rounded-full bg-[rgba(212,175,55,0.1)] border border-[rgba(212,175,55,0.25)] flex items-center justify-center hover:bg-[rgba(212,175,55,0.2)] transition-colors duration-200">
+            {isPlaying ? (
+              <Pause size={14} fill="currentColor" />
+            ) : (
+              <Play size={14} fill="currentColor" className="ml-0.5" />
+            )}
+          </div>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20, scale: 0.95 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.5, ease: 'easeOut' }}
-      className="fixed z-30 flex items-center justify-between bg-[#111111]/85 backdrop-blur-xl border border-[rgba(212,175,55,0.2)] shadow-[0_4px_24px_rgba(212,175,55,0.12)] rounded-full"
+      className="fixed z-30 flex items-center justify-between bg-[color:var(--bg-panel)]/85 backdrop-blur-xl border border-[rgba(212,175,55,0.2)] shadow-[0_4px_24px_rgba(212,175,55,0.12)] rounded-full"
       style={{
         bottom: '92px',
         left: '16px',

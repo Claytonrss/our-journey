@@ -88,6 +88,13 @@ export function MapView({
           />
         ))}
       </Map>
+      <div
+        className="absolute inset-0 pointer-events-none z-10"
+        style={{
+          background:
+            'radial-gradient(ellipse at center, transparent 0%, rgba(8,8,8,0.7) 100%)',
+        }}
+      />
     </div>
   );
 }

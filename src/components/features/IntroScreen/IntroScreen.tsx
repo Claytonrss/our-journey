@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from 'react';
 import Map, { MapRef } from 'react-map-gl/mapbox';
 import { AnimatePresence, motion } from 'framer-motion';
 import { memoryService } from '@/services/memoryService';
+import { CompassRose } from '@/components/ui/CompassRose';
 import type { Memory } from '@/types';
 
 interface IntroScreenProps {
@@ -138,9 +139,9 @@ export function IntroScreen({ onComplete }: IntroScreenProps) {
             style={{ width: 'min(480px, calc(100vw - 48px))' }}
           >
             <div
-              className="w-full px-6 py-7 md:px-10 md:py-9"
+              className="relative w-full overflow-hidden px-6 py-7 md:px-10 md:py-9"
               style={{
-                background: 'rgba(17, 17, 17, 0.82)',
+                background: 'rgba(16, 16, 16, 0.82)',
                 backdropFilter: 'blur(24px)',
                 WebkitBackdropFilter: 'blur(24px)',
                 border: '1px solid rgba(212, 175, 55, 0.15)',
@@ -149,20 +150,34 @@ export function IntroScreen({ onComplete }: IntroScreenProps) {
                   '0 32px 80px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(212,175,55,0.08)',
               }}
             >
-              <p
-                className="text-center uppercase tracking-[0.12em]"
+              <CompassRose
+                size={180}
+                opacity={0.15}
+                className="absolute -right-12 -top-10 pointer-events-none"
+              />
+
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="relative text-center uppercase tracking-[0.12em]"
                 style={{
-                  fontFamily: 'var(--font-inter)',
+                  fontFamily: 'var(--font-ui)',
                   fontSize: '11px',
                   color: 'rgba(212, 175, 55, 0.6)',
+                  fontWeight: 300,
                 }}
               >
                 nossa história, em lugares
-              </p>
+              </motion.p>
 
-              <div
+              <motion.div
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+                className="relative"
                 style={{
-                  width: '32px',
+                  width: '28px',
                   height: '1px',
                   background: 'rgba(212,175,55,0.25)',
                   margin: '14px auto 20px',
@@ -170,68 +185,51 @@ export function IntroScreen({ onComplete }: IntroScreenProps) {
               />
 
               <div
+                className="relative"
                 style={{
-                  fontFamily: 'var(--font-playfair)',
+                  fontFamily: 'var(--font-editorial)',
                   fontSize: 'clamp(15px, 2vw, 17px)',
                   fontWeight: 400,
-                  color: '#F5F0E8',
-                  lineHeight: 1.85,
+                  color: 'var(--text-warm)',
+                  lineHeight: 1.78,
                   textAlign: 'center',
                 }}
               >
-                <p style={{ marginBottom: '20px' }}>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 0.9 }}
+                  style={{ marginBottom: '28px' }}
+                >
                   Da primeira vez que viajamos juntos até aqui — passamos por
                   muitos lugares, vivemos histórias que só nós dois sabemos.
-                </p>
-                <p>
+                </motion.p>
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.6, delay: 1.4 }}
+                  onAnimationComplete={handleButtonReady}
+                >
                   Cada pin neste mapa é um pedaço nosso. E espero que a gente
                   marque muitos outros ainda.
-                </p>
+                </motion.p>
               </div>
 
-              <div className="mt-8" style={{ height: '52px' }}>
+              <div className="relative mt-8" style={{ height: '52px' }}>
                 <AnimatePresence>
-                  {!buttonVisible && (
-                    <motion.div
-                      key="spacer"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      transition={{ duration: 0.15 }}
-                      onAnimationComplete={handleButtonReady}
-                      className="h-full"
-                    />
-                  )}
                   {buttonVisible && (
                     <motion.button
                       key="button"
                       type="button"
                       onClick={handleClick}
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0 }}
-                      transition={{ duration: 0.6, delay: 0 }}
-                      className="w-full h-full"
-                      style={{
-                        borderRadius: '14px',
-                        background: 'linear-gradient(135deg, #C9A227, #D4AF37)',
-                        fontFamily: 'var(--font-inter)',
-                        fontSize: '15px',
-                        fontWeight: 500,
-                        color: '#0a0a0a',
-                        cursor: 'pointer',
-                        border: 'none',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.opacity = '0.88';
-                        e.currentTarget.style.transform = 'translateY(-1px)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.opacity = '1';
-                        e.currentTarget.style.transform = 'translateY(0)';
-                      }}
+                      transition={{ duration: 0.6, delay: 0.2 }}
+                      className="btn-primary h-full overflow-hidden relative group"
                     >
-                      Vamos lá
+                      <span className="relative z-10">Vamos lá</span>
+                      <div className="absolute inset-0 -translate-x-full group-hover:animate-[shimmer_1.5s_infinite] bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.2)] to-transparent" />
                     </motion.button>
                   )}
                 </AnimatePresence>

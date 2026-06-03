@@ -101,16 +101,21 @@ export default function MapPage() {
         onNavigate={setActiveMemoryId}
         onTitleClick={() => setSelectedMemoryId(activeMemoryId)}
       />
-      <AnimatePresence>
+      <AnimatePresence mode="wait">
         {selectedMemory && (
           <Overlay
+            key={selectedMemory.id}
             memory={selectedMemory}
             onClose={() => setSelectedMemoryId(null)}
             isMobile={isMobile}
           />
         )}
       </AnimatePresence>
-      <AudioPlayer isPlaying={isPlaying} onTogglePlay={togglePlay} />
+      <AnimatePresence>
+        {!selectedMemory && (
+          <AudioPlayer isPlaying={isPlaying} onTogglePlay={togglePlay} />
+        )}
+      </AnimatePresence>
     </main>
   );
 }

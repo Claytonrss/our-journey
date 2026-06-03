@@ -2,10 +2,12 @@
 
 import { useState, useTransition, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import { signIn } from 'next-auth/react';
 import { useAppStore } from '@/hooks/useAppStore';
 import { validatePin } from '@/app/actions/auth';
+import { CompassRose } from '@/components/ui/CompassRose';
+import Map from 'react-map-gl/mapbox';
 
 interface LockScreenProps {
   hasSession: boolean;
@@ -15,7 +17,11 @@ const STORAGE_KEY = 'our-journey-audio-preference';
 
 export function LockScreen({ hasSession }: LockScreenProps) {
   const router = useRouter();
-  const [showPin, setShowPin] = useState(false);
+  const [pin, setPin] = useState('');
+  const [isError, setIsError] = useState(false);
+  const [showPinInput, setShowPinInput] = useState(false);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+  const [mapboxToken, setMapboxToken] = useState<string | null>(null);
   const [audioMode, setAudioMode] = useState<'local' | 'spotify'>(() => {
     if (hasSession) return 'spotify';
     if (typeof window === 'undefined') return 'local';
@@ -24,20 +30,26 @@ export function LockScreen({ hasSession }: LockScreenProps) {
     if (saved === 'local') return 'local';
     return 'local';
   });
-  const [pin, setPin] = useState('');
-  const [isError, setIsError] = useState(false);
+
   const [isPending, startTransition] = useTransition();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const { setPinValidated, setUseLocalAudio } = useAppStore();
 
-  const showPinInput = showPin || hasSession;
+  const showPin = showPinInput || hasSession;
 
   useEffect(() => {
-    if (showPinInput && inputRefs.current[0]) {
+    fetch('/api/mapbox-token')
+      .then((res) => res.json())
+      .then((data) => setMapboxToken(data.token))
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    if (showPin && inputRefs.current[0]) {
       inputRefs.current[0].focus();
     }
-  }, [showPinInput]);
+  }, [showPin]);
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,7 +61,10 @@ export function LockScreen({ hasSession }: LockScreenProps) {
         localStorage.setItem(STORAGE_KEY, audioMode);
         setPinValidated(true);
         setUseLocalAudio(audioMode === 'local');
-        router.push('/map');
+        setIsUnlocking(true);
+        setTimeout(() => {
+          router.push('/map');
+        }, 800);
       } else {
         setIsError(true);
         setPin('');
@@ -81,368 +96,256 @@ export function LockScreen({ hasSession }: LockScreenProps) {
   };
 
   return (
-    <div
-      className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden"
-      style={{ background: 'var(--bg-void)' }}
-    >
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background:
-            'radial-gradient(ellipse 600px 600px at 50% 40%, rgba(212,175,55,0.12), transparent 70%)',
-          animation: 'float-gradient 12s ease-in-out infinite',
-        }}
-      />
-
-      <div
-        className="absolute inset-0 pointer-events-none flex items-center justify-center"
-        style={{ opacity: 0.08 }}
-      >
-        <svg
-          width="280"
-          height="280"
-          viewBox="0 0 280 280"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
+    <main className="min-h-screen flex flex-col items-center justify-center p-6 relative overflow-hidden bg-void">
+      {mapboxToken && (
+        <div
+          className="absolute inset-0 z-0 pointer-events-none transition-opacity duration-1000"
+          style={{ opacity: isUnlocking ? 1 : 0.01 }}
         >
-          <circle
-            cx="140"
-            cy="140"
-            r="120"
-            stroke="var(--gold)"
-            strokeWidth="0.5"
+          <Map
+            initialViewState={{
+              longitude: 10,
+              latitude: 20,
+              zoom: 1.5,
+              pitch: 20,
+              bearing: 0,
+            }}
+            mapStyle="mapbox://styles/mapbox/dark-v11"
+            mapboxAccessToken={mapboxToken}
+            projection="globe"
+            attributionControl={false}
           />
-          <circle
-            cx="140"
-            cy="140"
-            r="80"
-            stroke="var(--gold)"
-            strokeWidth="0.5"
-          />
-          <line
-            x1="140"
-            y1="10"
-            x2="140"
-            y2="270"
-            stroke="var(--gold)"
-            strokeWidth="0.5"
-          />
-          <line
-            x1="10"
-            y1="140"
-            x2="270"
-            y2="140"
-            stroke="var(--gold)"
-            strokeWidth="0.5"
-          />
-          <line
-            x1="45"
-            y1="45"
-            x2="235"
-            y2="235"
-            stroke="var(--gold)"
-            strokeWidth="0.3"
-          />
-          <line
-            x1="235"
-            y1="45"
-            x2="45"
-            y2="235"
-            stroke="var(--gold)"
-            strokeWidth="0.3"
-          />
-          <polygon
-            points="140,20 145,50 140,40 135,50"
-            fill="var(--gold)"
-            opacity="0.6"
-          />
-          <polygon
-            points="140,260 145,230 140,240 135,230"
-            fill="var(--gold)"
-            opacity="0.4"
-          />
-          <polygon
-            points="20,140 50,135 40,140 50,145"
-            fill="var(--gold)"
-            opacity="0.4"
-          />
-          <polygon
-            points="260,140 230,135 240,140 230,145"
-            fill="var(--gold)"
-            opacity="0.4"
-          />
-        </svg>
+        </div>
+      )}
+
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
+        <CompassRose size={360} opacity={0.15} className="compass-rotate" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="max-w-md w-full space-y-8 text-center relative z-10"
-      >
-        <div className="space-y-3">
-          <h1
-            className="text-[38px] font-normal"
-            style={{
-              fontFamily: 'var(--font-playfair)',
-              letterSpacing: '0.02em',
-              color: 'var(--gold)',
-              textShadow: '0 0 40px rgba(212,175,55,0.3)',
-            }}
-          >
-            Our Journey
-          </h1>
-          <p
-            className="text-sm italic"
-            style={{
-              fontFamily: 'var(--font-inter)',
-              color: 'var(--text-secondary)',
-            }}
-          >
-            Uma história contada em lugares
-          </p>
-        </div>
-
-        {!showPinInput ? (
+      <AnimatePresence>
+        {!isUnlocking && (
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            key="lock-content"
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-            className="mt-8 space-y-6"
+            exit={{ opacity: 0, scale: 1.05, filter: 'blur(10px)' }}
+            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+            className="max-w-md w-full space-y-8 text-center relative z-10"
           >
-            <div className="flex flex-col items-center gap-3">
-              <div className="flex items-center gap-3">
-                <span
-                  className="text-xs uppercase tracking-wider transition-colors duration-300 select-none"
-                  style={{
-                    fontFamily: 'var(--font-inter)',
-                    color:
-                      audioMode === 'local'
-                        ? 'var(--gold)'
-                        : 'var(--text-secondary)',
-                    fontWeight: audioMode === 'local' ? 500 : 400,
-                  }}
-                >
-                  Áudio Local
-                </span>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setAudioMode(audioMode === 'local' ? 'spotify' : 'local')
-                  }
-                  className="relative w-12 h-6 rounded-full transition-colors duration-300 focus:outline-none flex-shrink-0"
-                  style={{
-                    backgroundColor:
-                      audioMode === 'spotify'
-                        ? 'rgba(29, 185, 84, 0.5)'
-                        : 'rgba(212, 175, 55, 0.3)',
-                  }}
-                  aria-label="Alternar modo de áudio"
-                >
-                  <motion.span
-                    className="absolute top-0.5 w-5 h-5 rounded-full shadow-md"
-                    animate={{
-                      left: audioMode === 'spotify' ? '26px' : '2px',
-                    }}
-                    transition={{ type: 'spring', stiffness: 500, damping: 30 }}
-                    style={{
-                      backgroundColor:
-                        audioMode === 'spotify' ? '#1DB954' : 'var(--gold)',
-                    }}
-                  />
-                </button>
-
-                <span
-                  className="text-xs uppercase tracking-wider transition-colors duration-300 select-none"
-                  style={{
-                    fontFamily: 'var(--font-inter)',
-                    color:
-                      audioMode === 'spotify'
-                        ? '#1DB954'
-                        : 'var(--text-secondary)',
-                    fontWeight: audioMode === 'spotify' ? 500 : 400,
-                  }}
-                >
-                  Spotify
-                </span>
-              </div>
-
-              <p
-                className="text-xs text-center italic leading-relaxed transition-all duration-300"
+            <div className="space-y-3">
+              <h1
+                className="text-[38px] font-normal"
                 style={{
-                  fontFamily: 'var(--font-inter)',
-                  color: 'var(--text-secondary)',
-                  maxWidth: '260px',
+                  fontFamily: 'var(--font-playfair)',
+                  letterSpacing: '0.02em',
+                  color: 'var(--gold)',
+                  textShadow: '0 0 40px rgba(212,175,55,0.3)',
                 }}
               >
-                {audioMode === 'local'
-                  ? 'música ambiente offline · sem necessidade de login'
-                  : 'playlist pessoal · sincronizada em tempo real'}
+                Our Journey
+              </h1>
+              <p
+                className="text-sm italic"
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  color: 'var(--text-secondary)',
+                }}
+              >
+                Uma história contada em lugares
               </p>
             </div>
 
-            {hasSession ? (
-              <button
-                type="button"
-                onClick={() => setShowPin(true)}
-                className="w-full transition-all flex items-center justify-center"
-                style={{
-                  height: '52px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #C9A227, #D4AF37)',
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  color: '#0a0a0a',
-                }}
+            {!showPin ? (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="mt-8 space-y-6"
               >
-                Continuar
-              </button>
-            ) : audioMode === 'spotify' ? (
-              <button
-                type="button"
-                onClick={() => signIn('spotify')}
-                className="w-full py-3 px-4 text-black font-medium transition-all flex items-center justify-center gap-2"
-                style={{
-                  background: '#1DB954',
-                  borderRadius: '14px',
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '15px',
-                }}
-              >
-                Conectar com Spotify
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowPin(true)}
-                className="w-full transition-all flex items-center justify-center"
-                style={{
-                  height: '52px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #C9A227, #D4AF37)',
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  color: '#0a0a0a',
-                }}
-              >
-                Continuar Offline
-              </button>
-            )}
-          </motion.div>
-        ) : (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mt-8"
-          >
-            <form onSubmit={handlePinSubmit} className="space-y-6">
-              <p
-                className="text-xs text-center"
-                style={{
-                  color: 'var(--text-secondary)',
-                  fontFamily: 'var(--font-inter)',
-                  marginBottom: '16px',
-                }}
-              >
-                {audioMode === 'local'
-                  ? 'modo offline'
-                  : 'conectado ao spotify'}
-              </p>
-
-              <div
-                className="flex justify-center gap-3"
-                style={{
-                  animation: isError ? 'shake 0.4s ease' : undefined,
-                }}
-              >
-                {[0, 1, 2, 3].map((index) => (
-                  <input
-                    key={index}
-                    ref={(el) => {
-                      inputRefs.current[index] = el;
-                    }}
-                    type="password"
-                    maxLength={1}
-                    value={pin[index] || ''}
-                    onChange={(e) => handleDigitChange(index, e.target.value)}
-                    onKeyDown={(e) => handleKeyDown(index, e)}
-                    disabled={isPending}
-                    className="text-center text-2xl transition-all disabled:opacity-50"
+                <div className="flex flex-col items-center gap-3">
+                  <div
+                    className="flex items-center p-1 rounded-full relative"
                     style={{
-                      width: '56px',
-                      height: '64px',
-                      borderRadius: '12px',
-                      background: 'var(--bg-surface)',
-                      border: isError
-                        ? '1px solid rgba(220,80,80,0.6)'
-                        : pin[index]
-                          ? '1px solid var(--gold)'
-                          : '1px solid rgba(212,175,55,0.2)',
-                      color: 'var(--text-primary)',
-                      fontFamily: 'var(--font-inter)',
-                      boxShadow: pin[index]
-                        ? '0 0 0 3px rgba(212,175,55,0.1)'
-                        : 'none',
-                      outline: 'none',
+                      background: 'rgba(212, 175, 55, 0.05)',
+                      border: '1px solid rgba(212, 175, 55, 0.15)',
                     }}
-                  />
-                ))}
-              </div>
+                  >
+                    <button
+                      type="button"
+                      onClick={() => setAudioMode('local')}
+                      className="px-5 py-2 rounded-full text-[11px] uppercase tracking-wider transition-all duration-300 relative"
+                      style={{
+                        fontFamily: 'var(--font-ui)',
+                        color:
+                          audioMode === 'local'
+                            ? '#080808'
+                            : 'var(--text-secondary)',
+                        fontWeight: audioMode === 'local' ? 500 : 400,
+                      }}
+                    >
+                      {audioMode === 'local' && (
+                        <motion.div
+                          layoutId="audioModePill"
+                          className="absolute inset-0 rounded-full"
+                          style={{ background: 'var(--gold)' }}
+                        />
+                      )}
+                      <span className="relative z-10">Áudio Local</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setAudioMode('spotify')}
+                      className="px-5 py-2 rounded-full text-[11px] uppercase tracking-wider transition-all duration-300 relative"
+                      style={{
+                        fontFamily: 'var(--font-ui)',
+                        color:
+                          audioMode === 'spotify'
+                            ? '#1DB954'
+                            : 'var(--text-secondary)',
+                        fontWeight: audioMode === 'spotify' ? 500 : 400,
+                      }}
+                    >
+                      {audioMode === 'spotify' && (
+                        <motion.div
+                          layoutId="audioModePill"
+                          className="absolute inset-0 rounded-full"
+                          style={{ background: 'rgba(29, 185, 84, 0.1)' }}
+                        />
+                      )}
+                      <span className="relative z-10">Spotify</span>
+                    </button>
+                  </div>
+                </div>
 
-              {isError && (
-                <p
-                  className="text-sm"
+                {hasSession ? (
+                  <button
+                    type="button"
+                    onClick={() => setShowPinInput(true)}
+                    className="btn-primary"
+                  >
+                    Continuar
+                  </button>
+                ) : audioMode === 'spotify' ? (
+                  <button
+                    type="button"
+                    onClick={() => signIn('spotify')}
+                    className="btn-primary"
+                  >
+                    Conectar com Spotify
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => setShowPinInput(true)}
+                    className="btn-primary"
+                  >
+                    Continuar Offline
+                  </button>
+                )}
+              </motion.div>
+            ) : (
+              <motion.form
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                onSubmit={handlePinSubmit}
+                className="space-y-6"
+              >
+                <div
+                  className="flex justify-center gap-3"
                   style={{
-                    color: 'rgba(220,80,80,0.8)',
-                    fontFamily: 'var(--font-inter)',
+                    animation: isError ? 'shake 0.4s ease' : undefined,
                   }}
                 >
-                  Código incorreto.
-                </p>
-              )}
-
-              <button
-                type="submit"
-                disabled={pin.length !== 4 || isPending}
-                className="w-full transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                  {[0, 1, 2, 3].map((index) => (
+                    <div
+                      key={index}
+                      className="relative flex items-center justify-center"
+                    >
+                      <input
+                        ref={(el) => {
+                          inputRefs.current[index] = el;
+                        }}
+                        type="password"
+                        maxLength={1}
+                        value={pin[index] || ''}
+                        onChange={(e) =>
+                          handleDigitChange(index, e.target.value)
+                        }
+                        onKeyDown={(e) => handleKeyDown(index, e)}
+                        disabled={isPending}
+                        className="text-center text-2xl transition-all disabled:opacity-50 relative z-10"
+                        style={{
+                          width: '60px',
+                          height: '68px',
+                          borderRadius: '12px',
+                          background: 'var(--bg-surface)',
+                          border: isError
+                            ? '1px solid rgba(220,80,80,0.6)'
+                            : pin[index]
+                              ? '1px solid var(--gold)'
+                              : '1px solid rgba(212,175,55,0.2)',
+                          color: 'transparent',
+                          fontFamily: 'var(--font-ui)',
+                          boxShadow: pin[index]
+                            ? '0 0 0 3px rgba(212,175,55,0.1)'
+                            : 'none',
+                          outline: 'none',
+                          caretColor: 'transparent',
+                        }}
+                      />
+                      <AnimatePresence>
+                        {pin[index] && (
+                          <motion.span
+                            initial={{ scale: 0.5, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.5, opacity: 0 }}
+                            transition={{
+                              type: 'spring',
+                              stiffness: 400,
+                              damping: 25,
+                            }}
+                            className="absolute pointer-events-none z-20 text-xl flex items-center justify-center inset-0"
+                            style={{ color: 'var(--gold)' }}
+                          >
+                            ◆
+                          </motion.span>
+                        )}
+                      </AnimatePresence>
+                    </div>
+                  ))}
+                </div>
+                {isError && (
+                  <p className="text-sm text-red-500">Código incorreto.</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={pin.length !== 4 || isPending}
+                  className="btn-primary"
+                >
+                  {isPending ? 'Validando...' : 'Entrar'}
+                </button>
+              </motion.form>
+            )}
+            <div className="flex flex-col items-center gap-3 mt-12">
+              <div
                 style={{
-                  height: '52px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, #C9A227, #D4AF37)',
-                  fontFamily: 'var(--font-inter)',
-                  fontSize: '15px',
-                  fontWeight: 500,
-                  color: '#0a0a0a',
+                  width: '80px',
+                  height: '1px',
+                  background: 'rgba(212,175,55,0.2)',
+                }}
+              />
+              <p
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '11px',
+                  color: 'var(--text-date)',
                 }}
               >
-                {isPending ? 'Validando...' : 'Entrar'}
-              </button>
-            </form>
+                Apenas para nós dois
+              </p>
+            </div>
           </motion.div>
         )}
-
-        <div className="flex flex-col items-center gap-3 mt-12">
-          <div
-            style={{
-              width: '80px',
-              height: '1px',
-              background: 'rgba(212,175,55,0.2)',
-            }}
-          />
-          <p
-            style={{
-              fontFamily: 'var(--font-inter)',
-              fontSize: '11px',
-              color: 'var(--text-date)',
-            }}
-          >
-            Apenas para nós dois
-          </p>
-        </div>
-      </motion.div>
-    </div>
+      </AnimatePresence>
+    </main>
   );
 }
