@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
@@ -10,8 +10,6 @@ interface MasonryGalleryProps {
   images: ImageType[];
   startIndex?: number;
 }
-
-const HEIGHTS = [130, 105];
 
 export function MasonryGallery({
   images,
@@ -39,23 +37,15 @@ export function MasonryGallery({
   return (
     <>
       <div
-        className="flex overflow-x-auto pb-4"
+        className="grid grid-cols-2"
         style={{
           gap: '8px',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
         }}
       >
-        <style jsx>{`
-          div::-webkit-scrollbar {
-            display: none;
-          }
-        `}</style>
         {displayImages.map((image, index) => (
           <GalleryImage
             key={index}
             image={image}
-            height={HEIGHTS[index % HEIGHTS.length]}
             onClick={() => setSelectedIndex(startIndex + index)}
           />
         ))}
@@ -77,20 +67,20 @@ export function MasonryGallery({
 
 interface GalleryImageProps {
   image: ImageType;
-  height: number;
   onClick: () => void;
 }
 
-function GalleryImage({ image, height, onClick }: GalleryImageProps) {
+function GalleryImage({ image, onClick }: GalleryImageProps) {
+  const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
 
   if (hasError) {
     return (
       <div
-        className="flex items-center justify-center shrink-0"
+        className="flex items-center justify-center"
         style={{
-          height: `${height}px`,
-          width: `${height * 0.8}px`,
+          width: '100%',
+          aspectRatio: '4 / 3',
           borderRadius: '12px',
           background: 'var(--bg-surface)',
         }}
@@ -110,10 +100,10 @@ function GalleryImage({ image, height, onClick }: GalleryImageProps) {
 
   return (
     <motion.div
-      className="relative shrink-0 overflow-hidden cursor-pointer"
+      className="relative overflow-hidden cursor-pointer"
       style={{
-        height: `${height}px`,
-        width: `${height * 0.85}px`,
+        width: '100%',
+        aspectRatio: '4 / 3',
         borderRadius: '12px',
         boxShadow: '0 4px 12px rgba(0,0,0,0.4)',
       }}
@@ -122,13 +112,32 @@ function GalleryImage({ image, height, onClick }: GalleryImageProps) {
       transition={{ duration: 0.35, ease: 'easeOut' }}
       onClick={onClick}
     >
-      <Image
-        src={image.url}
+      {isLoading && (
+        <div
+          className="absolute inset-0 z-10"
+          style={{
+            background:
+              'linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%)',
+            backgroundSize: '200% 100%',
+            animation: 'shimmer 1.5s linear infinite',
+          }}
+        />
+      )}
+      <CldImage
+        src={image.publicId}
         alt={image.alt}
         fill
         className="object-cover"
-        onError={() => setHasError(true)}
+        onError={() => {
+          setHasError(true);
+          setIsLoading(false);
+        }}
+        onLoad={() => setIsLoading(false)}
         loading="lazy"
+        sizes="(max-width: 768px) 50vw, 200px"
+        crop="fill"
+        gravity="auto"
+        dpr="auto"
       />
     </motion.div>
   );
@@ -279,8 +288,8 @@ function Lightbox({
           exit={{ opacity: 0, scale: 0.98, y: 10 }}
           transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
         >
-          <Image
-            src={image.url}
+          <CldImage
+            src={image.publicId}
             alt={image.alt}
             width={image.width}
             height={image.height}
@@ -292,6 +301,8 @@ function Lightbox({
               boxShadow: '0 30px 60px rgba(0,0,0,0.6)',
             }}
             draggable={false}
+            sizes="90vw"
+            dpr="auto"
           />
         </motion.div>
       </AnimatePresence>

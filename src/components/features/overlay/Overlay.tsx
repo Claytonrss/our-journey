@@ -1,6 +1,6 @@
 'use client';
 
-import Image from 'next/image';
+import { CldImage } from 'next-cloudinary';
 import { motion, useDragControls, PanInfo } from 'framer-motion';
 import { X } from 'lucide-react';
 import { MemoryContent } from './MemoryContent';
@@ -78,12 +78,16 @@ function MobileOverlay({ memory, onClose }: OverlayContentProps) {
       >
         <div className="relative shrink-0" style={{ height: '220px' }}>
           {heroImage ? (
-            <Image
-              src={heroImage.url}
+            <CldImage
+              src={heroImage.publicId}
               alt={heroImage.alt}
               fill
               className="object-cover"
               priority
+              sizes="(max-width: 768px) 100vw, 400px"
+              crop="fill"
+              gravity="auto"
+              dpr="auto"
             />
           ) : (
             <div
@@ -176,7 +180,7 @@ function MobileOverlay({ memory, onClose }: OverlayContentProps) {
         >
           <MemoryContent memory={memory} hideTitle={true} />
           {galleryImages.length > 0 && (
-            <MasonryGallery images={memory.images} startIndex={1} />
+            <MasonryGallery images={memory.images} startIndex={0} />
           )}
         </div>
 
@@ -217,12 +221,16 @@ function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
         <div className="flex flex-col h-full overflow-hidden">
           <div className="relative shrink-0" style={{ height: '260px' }}>
             {heroImage ? (
-              <Image
-                src={heroImage.url}
+              <CldImage
+                src={heroImage.publicId}
                 alt={heroImage.alt}
                 fill
                 className="object-cover"
                 priority
+                sizes="(max-width: 768px) 100vw, 400px"
+                crop="fill"
+                gravity="auto"
+                dpr="auto"
               />
             ) : (
               <div
@@ -300,7 +308,7 @@ function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
           >
             <MemoryContent memory={memory} hideTitle={true} />
             {galleryImages.length > 0 && (
-              <MasonryGallery images={memory.images} startIndex={1} />
+              <MasonryGallery images={memory.images} startIndex={0} />
             )}
           </div>
           <AudioPlayer

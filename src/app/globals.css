@@ -117,6 +117,16 @@
   }
 }
 
+@keyframes cursor-blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
 .compass-rotate {
   animation: compass-rotate 120s linear infinite;
 }
@@ -174,4 +184,22 @@ body::after {
   cursor: not-allowed;
   opacity: 0.5;
   transform: none;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
