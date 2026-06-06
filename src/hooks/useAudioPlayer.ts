@@ -48,7 +48,7 @@ export function useAudioPlayer(): AudioPlayerHook {
   }, [useLocalAudio, isPlaying, setIsPlaying]);
 
   useEffect(() => {
-    if (session?.error === 'RefreshAccessTokenError') {
+    if (session?.error === 'RefreshAccessTokenError' && !useLocalAudio) {
       signOut();
       return;
     }

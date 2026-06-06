@@ -60,7 +60,11 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
     });
 
     if (!response.ok) {
-      throw new Error('Failed to refresh access token');
+      console.error('Failed to refresh access token:', response.status);
+      return {
+        ...token,
+        error: 'RefreshAccessTokenError',
+      };
     }
 
     const data = await response.json();

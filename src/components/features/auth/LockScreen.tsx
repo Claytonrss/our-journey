@@ -31,6 +31,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
     return 'local';
   });
 
+  const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [isPending, startTransition] = useTransition();
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
@@ -250,6 +251,8 @@ export function LockScreen({ hasSession }: LockScreenProps) {
                 className="space-y-6"
               >
                 <div
+                  role="group"
+                  aria-label="Código PIN de 4 dígitos"
                   className="flex justify-center gap-3"
                   style={{
                     animation: isError ? 'shake 0.4s ease' : undefined,
@@ -264,13 +267,20 @@ export function LockScreen({ hasSession }: LockScreenProps) {
                         ref={(el) => {
                           inputRefs.current[index] = el;
                         }}
+                        id={`pin-${index}`}
                         type="password"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
                         maxLength={1}
                         value={pin[index] || ''}
+                        aria-label={`Dígito ${index + 1} de 4`}
+                        aria-invalid={isError || undefined}
                         onChange={(e) =>
                           handleDigitChange(index, e.target.value)
                         }
                         onKeyDown={(e) => handleKeyDown(index, e)}
+                        onFocus={() => setFocusedIndex(index)}
+                        onBlur={() => setFocusedIndex(null)}
                         disabled={isPending}
                         className="text-center text-2xl transition-all disabled:opacity-50 relative z-10"
                         style={{
@@ -285,14 +295,35 @@ export function LockScreen({ hasSession }: LockScreenProps) {
                               : '1px solid rgba(212,175,55,0.2)',
                           color: 'transparent',
                           fontFamily: 'var(--font-ui)',
-                          boxShadow: pin[index]
-                            ? '0 0 0 3px rgba(212,175,55,0.1)'
-                            : 'none',
+                          boxShadow:
+                            focusedIndex === index
+                              ? '0 0 0 3px rgba(212,175,55,0.25)'
+                              : pin[index]
+                                ? '0 0 0 3px rgba(212,175,55,0.1)'
+                                : 'none',
                           outline: 'none',
                           caretColor: 'transparent',
                         }}
                       />
                       <AnimatePresence>
+                        {focusedIndex === index && !pin[index] && (
+                          <motion.span
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.15 }}
+                            className="absolute pointer-events-none z-20 flex items-center justify-center inset-0"
+                            style={{
+                              color: 'var(--gold)',
+                              fontSize: '24px',
+                              fontFamily: 'var(--font-ui)',
+                              fontWeight: 300,
+                              animation: 'cursor-blink 1s steps(2) infinite',
+                            }}
+                          >
+                            |
+                          </motion.span>
+                        )}
                         {pin[index] && (
                           <motion.span
                             initial={{ scale: 0.5, opacity: 0 }}
@@ -314,7 +345,9 @@ export function LockScreen({ hasSession }: LockScreenProps) {
                   ))}
                 </div>
                 {isError && (
-                  <p className="text-sm text-red-500">Código incorreto.</p>
+                  <p role="alert" className="text-sm text-red-500">
+                    Código incorreto.
+                  </p>
                 )}
                 <button
                   type="submit"
