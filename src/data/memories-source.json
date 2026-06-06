@@ -1,0 +1,14 @@
+[
+  {
+    "id": "1",
+    "title": "Lagos, Portugal",
+    "date": "2020-02-03",
+    "coordinates": {
+      "lat": 37.10278,
+      "lng": -8.67278
+    },
+    "isSpecialPin": false,
+    "description": "Nossa primeira viagem juntos. Lagos, no Algarve português, com suas praias de falésias douradas e águas cristalinas.",
+    "cloudinaryFolder": "memories/01-portugal-lagos"
+  }
+]

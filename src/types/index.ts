@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const ImageSchema = z.object({
-  url: z.string(),
+  publicId: z.string(),
   alt: z.string(),
   width: z.number().int().positive(),
   height: z.number().int().positive(),
