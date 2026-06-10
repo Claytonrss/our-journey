@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
     "generate": "tsx scripts/generate-memories.ts",
-    "prebuild": "pnpm run generate",
+    "prebuild": "",
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
