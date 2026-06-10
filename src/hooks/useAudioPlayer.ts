@@ -100,7 +100,10 @@ export function useAudioPlayer(): AudioPlayerHook {
     spotify
       .init(getToken)
       .then(() => {
-        spotify.play(publicEnv.NEXT_PUBLIC_SPOTIFY_PLAYLIST_URI);
+        const playlistUri = publicEnv.NEXT_PUBLIC_SPOTIFY_PLAYLIST_URI;
+        if (playlistUri) {
+          spotify.play(playlistUri);
+        }
       })
       .catch(() => {
         setUseLocalAudio(true);
