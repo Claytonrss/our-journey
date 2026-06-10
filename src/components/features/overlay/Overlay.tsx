@@ -2,7 +2,7 @@
 
 import { CldImage } from 'next-cloudinary';
 import { motion, useDragControls, PanInfo } from 'framer-motion';
-import { X } from 'lucide-react';
+import { ArrowRight, X } from 'lucide-react';
 import { MemoryContent } from './MemoryContent';
 import { MasonryGallery } from './MasonryGallery';
 import { CompassRose } from '@/components/ui/CompassRose';
@@ -13,25 +13,48 @@ import type { Memory } from '@/types';
 interface OverlayProps {
   memory: Memory | null;
   onClose: () => void;
+  onNavigateToTimeline: (id: string) => void;
   isMobile: boolean;
 }
 
-export function Overlay({ memory, onClose, isMobile }: OverlayProps) {
+export function Overlay({
+  memory,
+  onClose,
+  onNavigateToTimeline,
+  isMobile,
+}: OverlayProps) {
   if (!memory) return null;
 
   if (isMobile) {
-    return <MobileOverlay memory={memory} onClose={onClose} />;
+    return (
+      <MobileOverlay
+        memory={memory}
+        onClose={onClose}
+        onNavigateToTimeline={onNavigateToTimeline}
+      />
+    );
   }
 
-  return <DesktopOverlay memory={memory} onClose={onClose} />;
+  return (
+    <DesktopOverlay
+      memory={memory}
+      onClose={onClose}
+      onNavigateToTimeline={onNavigateToTimeline}
+    />
+  );
 }
 
 interface OverlayContentProps {
   memory: Memory;
   onClose: () => void;
+  onNavigateToTimeline: (id: string) => void;
 }
 
-function MobileOverlay({ memory, onClose }: OverlayContentProps) {
+function MobileOverlay({
+  memory,
+  onClose,
+  onNavigateToTimeline,
+}: OverlayContentProps) {
   const dragControls = useDragControls();
   const { isPlaying, togglePlay } = useAudioPlayer();
 
@@ -182,6 +205,10 @@ function MobileOverlay({ memory, onClose }: OverlayContentProps) {
           {galleryImages.length > 0 && (
             <MasonryGallery images={memory.images} startIndex={0} />
           )}
+          <TimelineButton
+            memoryId={memory.id}
+            onNavigateToTimeline={onNavigateToTimeline}
+          />
         </div>
 
         <AudioPlayer
@@ -194,7 +221,11 @@ function MobileOverlay({ memory, onClose }: OverlayContentProps) {
   );
 }
 
-function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
+function DesktopOverlay({
+  memory,
+  onClose,
+  onNavigateToTimeline,
+}: OverlayContentProps) {
   const heroImage = memory.images[0];
   const galleryImages = memory.images.slice(1);
   const { isPlaying, togglePlay } = useAudioPlayer();
@@ -310,6 +341,10 @@ function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
             {galleryImages.length > 0 && (
               <MasonryGallery images={memory.images} startIndex={0} />
             )}
+            <TimelineButton
+              memoryId={memory.id}
+              onNavigateToTimeline={onNavigateToTimeline}
+            />
           </div>
           <AudioPlayer
             isPlaying={isPlaying}
@@ -319,5 +354,39 @@ function DesktopOverlay({ memory, onClose }: OverlayContentProps) {
         </div>
       </motion.div>
     </>
+  );
+}
+
+interface TimelineButtonProps {
+  memoryId: string;
+  onNavigateToTimeline: (id: string) => void;
+}
+
+function TimelineButton({
+  memoryId,
+  onNavigateToTimeline,
+}: TimelineButtonProps) {
+  return (
+    <button
+      type="button"
+      onClick={() => onNavigateToTimeline(memoryId)}
+      className="group flex items-center gap-2 self-start rounded-full px-5 py-2.5 transition-all"
+      style={{
+        background: 'rgba(212,175,55,0.08)',
+        border: '1px solid rgba(212,175,55,0.15)',
+      }}
+    >
+      <span
+        className="text-[13px] font-medium tracking-wide transition-colors group-hover:text-white"
+        style={{ color: 'var(--gold)' }}
+      >
+        Ver na timeline
+      </span>
+      <ArrowRight
+        size={16}
+        className="transition-transform group-hover:translate-x-1"
+        style={{ color: 'var(--gold)' }}
+      />
+    </button>
   );
 }

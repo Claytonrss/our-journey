@@ -17,6 +17,7 @@ import { NavigationOverlay } from '@/components/features/map/NavigationOverlay';
 import { Overlay } from '@/components/features/overlay/Overlay';
 import { AudioPlayer } from '@/components/features/player/AudioPlayer';
 import { IntroScreen } from '@/components/features/IntroScreen';
+import { ViewToggle } from '@/components/ui/ViewToggle';
 import type { Memory } from '@/types';
 
 export default function MapPage() {
@@ -55,6 +56,12 @@ export default function MapPage() {
     setSelectedMemoryId(id);
   };
 
+  const handleNavigateToTimeline = (id: string) => {
+    setActiveMemoryId(id);
+    setSelectedMemoryId(null);
+    router.push('/timeline');
+  };
+
   useEffect(() => {
     if (!isPinValidated) {
       router.push('/');
@@ -64,7 +71,9 @@ export default function MapPage() {
     memoryService.getMemories().then((data) => {
       setMemories(data);
       if (data.length > 0 && !initializedRef.current) {
-        if (introSeenOnMount) {
+        const currentActiveMemoryId = useAppStore.getState().activeMemoryId;
+
+        if (introSeenOnMount && !currentActiveMemoryId) {
           setActiveMemoryId(data[0].id);
         }
         initializedRef.current = true;
@@ -107,6 +116,7 @@ export default function MapPage() {
             key={selectedMemory.id}
             memory={selectedMemory}
             onClose={() => setSelectedMemoryId(null)}
+            onNavigateToTimeline={handleNavigateToTimeline}
             isMobile={isMobile}
           />
         )}
@@ -116,6 +126,7 @@ export default function MapPage() {
           <AudioPlayer isPlaying={isPlaying} onTogglePlay={togglePlay} />
         )}
       </AnimatePresence>
+      {!selectedMemory && <ViewToggle bottomOffset="92px" />}
     </main>
   );
 }

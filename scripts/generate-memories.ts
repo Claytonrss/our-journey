@@ -7,23 +7,24 @@ import path from 'path';
 import { v2 as cloudinary } from 'cloudinary';
 import { z } from 'zod';
 import { MemorySchema } from '../src/types';
+import { getCloudinaryEnv } from '../src/lib/env';
+
+let cloudinaryEnv: ReturnType<typeof getCloudinaryEnv>;
+
+try {
+  cloudinaryEnv = getCloudinaryEnv();
+} catch {
+  console.log('⚠️  Cloudinary env not configured, skipping generation.');
+  console.log('   memories.json will be used as-is from the repository.');
+  process.exit(0);
+}
 
 // Configurar o SDK do Cloudinary
 cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+  cloud_name: cloudinaryEnv.CLOUDINARY_CLOUD_NAME,
+  api_key: cloudinaryEnv.CLOUDINARY_API_KEY,
+  api_secret: cloudinaryEnv.CLOUDINARY_API_SECRET,
 });
-
-interface SourceMemory {
-  id: string;
-  title: string;
-  date: string;
-  coordinates: { lat: number; lng: number };
-  isSpecialPin: boolean;
-  description: string;
-  cloudinaryFolder: string;
-}
 
 const SourceSchema = z.array(
   z.object({
@@ -91,19 +92,6 @@ async function generateMemories() {
     'memories-source.json',
   );
   const outputPath = path.join(process.cwd(), 'src', 'data', 'memories.json');
-
-  // Verificar se as variáveis de ambiente estão configuradas
-  if (
-    !process.env.CLOUDINARY_CLOUD_NAME ||
-    !process.env.CLOUDINARY_API_KEY ||
-    !process.env.CLOUDINARY_API_SECRET
-  ) {
-    console.error('❌ Variáveis de ambiente do Cloudinary não configuradas.');
-    console.error(
-      'Certifique-se de que CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY e CLOUDINARY_API_SECRET estão definidas no .env.local',
-    );
-    process.exit(1);
-  }
 
   // Ler o arquivo source
   const sourceData = JSON.parse(fs.readFileSync(sourcePath, 'utf-8'));

@@ -1,15 +1,8 @@
 import { NextResponse } from 'next/server';
+import { getMapboxEnv } from '@/lib/env';
 
 export async function GET() {
-  const token =
-    process.env.MAPBOX_TOKEN || process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
+  const { MAPBOX_TOKEN } = getMapboxEnv();
 
-  if (!token) {
-    return NextResponse.json(
-      { error: 'Mapbox token not configured' },
-      { status: 500 },
-    );
-  }
-
-  return NextResponse.json({ token });
+  return NextResponse.json({ token: MAPBOX_TOKEN });
 }

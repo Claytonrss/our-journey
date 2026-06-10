@@ -1,37 +1,7 @@
 import NextAuth, { customFetch, type DefaultSession } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import Spotify from 'next-auth/providers/spotify';
-
-const configuredAuthUrl =
-  process.env.AUTH_URL ??
-  process.env.NEXTAUTH_URL ??
-  (process.env.NODE_ENV === 'development'
-    ? 'http://127.0.0.1:3000'
-    : undefined);
-
-const canonicalAuthUrl = (() => {
-  if (!configuredAuthUrl) {
-    return undefined;
-  }
-
-  const url = new URL(configuredAuthUrl);
-
-  if (process.env.NODE_ENV === 'development' && url.hostname === 'localhost') {
-    url.hostname = '127.0.0.1';
-  }
-
-  return url.toString().replace(/\/$/, '');
-})();
-
-if (canonicalAuthUrl) {
-  process.env.AUTH_URL = canonicalAuthUrl;
-  process.env.NEXTAUTH_URL ??= canonicalAuthUrl;
-}
-
-// Redirect URI de produção: https://[seu-dominio].vercel.app/api/auth/callback/spotify
-const spotifyCallbackUrl = canonicalAuthUrl
-  ? `${canonicalAuthUrl}/api/auth/callback/spotify`
-  : undefined;
+import { getAuthEnv, getCanonicalAuthUrl } from '@/lib/env';
 
 declare module 'next-auth' {
   interface Session {
@@ -43,14 +13,46 @@ declare module 'next-auth' {
   }
 }
 
+declare module 'next-auth/jwt' {
+  interface JWT {
+    accessToken?: string;
+    refreshToken?: string;
+    expiresAt?: number;
+    error?: 'RefreshAccessTokenError';
+  }
+}
+
+function getSpotifyCallbackUrl(): string | undefined {
+  const baseUrl =
+    process.env.AUTH_URL ??
+    process.env.NEXTAUTH_URL ??
+    (process.env.NODE_ENV === 'development'
+      ? 'http://127.0.0.1:3000'
+      : undefined);
+
+  if (!baseUrl) return undefined;
+
+  return `${baseUrl.replace(/\/$/, '')}/api/auth/callback/spotify`;
+}
+
 async function refreshAccessToken(token: JWT): Promise<JWT> {
   try {
+    const clientId = process.env.SPOTIFY_CLIENT_ID;
+    const clientSecret = process.env.SPOTIFY_CLIENT_SECRET;
+
+    if (!clientId || !clientSecret) {
+      return {
+        ...token,
+        error: 'RefreshAccessTokenError',
+      };
+    }
+
     const response = await fetch('https://accounts.spotify.com/api/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${Buffer.from(
-          `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`,
+          `${clientId}:${clientSecret}`,
         ).toString('base64')}`,
       },
       body: new URLSearchParams({
@@ -84,22 +86,35 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
   }
 }
 
+function lazyAuthConfig() {
+  const env = getAuthEnv();
+  const canonicalUrl = getCanonicalAuthUrl(env);
+
+  process.env.AUTH_URL = canonicalUrl;
+  process.env.NEXTAUTH_URL ??= canonicalUrl;
+
+  return { env, canonicalUrl };
+}
+
 const nextAuth = NextAuth({
   trustHost: true,
   providers: [
     Spotify({
-      clientId: process.env.SPOTIFY_CLIENT_ID,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+      clientId: process.env.SPOTIFY_CLIENT_ID!,
+      clientSecret: process.env.SPOTIFY_CLIENT_SECRET!,
       authorization: {
         url: 'https://accounts.spotify.com/authorize',
         params: {
           scope:
             'user-read-email streaming user-read-private user-modify-playback-state user-read-playback-state',
-          ...(spotifyCallbackUrl ? { redirect_uri: spotifyCallbackUrl } : {}),
+          ...(getSpotifyCallbackUrl()
+            ? { redirect_uri: getSpotifyCallbackUrl() }
+            : {}),
         },
       },
       async [customFetch](input, init) {
         const url = new URL(input instanceof Request ? input.url : input);
+        const spotifyCallbackUrl = getSpotifyCallbackUrl();
 
         if (url.href === 'https://accounts.spotify.com/api/token') {
           const body = init?.body;
@@ -129,24 +144,23 @@ const nextAuth = NextAuth({
       return await refreshAccessToken(token);
     },
     async redirect({ url, baseUrl }) {
+      const { env, canonicalUrl } = lazyAuthConfig();
       const redirectUrl = new URL(url, baseUrl);
 
       if (
-        process.env.NODE_ENV === 'development' &&
+        env.NODE_ENV === 'development' &&
         redirectUrl.hostname === 'localhost'
       ) {
         redirectUrl.hostname = '127.0.0.1';
       }
 
-      const canonicalOrigin = canonicalAuthUrl
-        ? new URL(canonicalAuthUrl).origin
-        : baseUrl;
+      const canonicalOrigin = new URL(canonicalUrl).origin;
 
       if (redirectUrl.origin === canonicalOrigin) {
         return redirectUrl.toString();
       }
 
-      return canonicalAuthUrl ?? baseUrl;
+      return canonicalUrl;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
