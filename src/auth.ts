@@ -1,32 +1,13 @@
 import NextAuth, { customFetch, type DefaultSession } from 'next-auth';
 import type { JWT } from 'next-auth/jwt';
 import Spotify from 'next-auth/providers/spotify';
+import { getAuthEnv, getCanonicalAuthUrl } from '@/lib/env';
 
-const configuredAuthUrl =
-  process.env.AUTH_URL ??
-  process.env.NEXTAUTH_URL ??
-  (process.env.NODE_ENV === 'development'
-    ? 'http://127.0.0.1:3000'
-    : undefined);
+const authEnv = getAuthEnv();
+const canonicalAuthUrl = getCanonicalAuthUrl(authEnv);
 
-const canonicalAuthUrl = (() => {
-  if (!configuredAuthUrl) {
-    return undefined;
-  }
-
-  const url = new URL(configuredAuthUrl);
-
-  if (process.env.NODE_ENV === 'development' && url.hostname === 'localhost') {
-    url.hostname = '127.0.0.1';
-  }
-
-  return url.toString().replace(/\/$/, '');
-})();
-
-if (canonicalAuthUrl) {
-  process.env.AUTH_URL = canonicalAuthUrl;
-  process.env.NEXTAUTH_URL ??= canonicalAuthUrl;
-}
+process.env.AUTH_URL = canonicalAuthUrl;
+process.env.NEXTAUTH_URL ??= canonicalAuthUrl;
 
 // Redirect URI de produção: https://[seu-dominio].vercel.app/api/auth/callback/spotify
 const spotifyCallbackUrl = canonicalAuthUrl
@@ -50,7 +31,7 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
       headers: {
         'Content-Type': 'application/x-www-form-urlencoded',
         Authorization: `Basic ${Buffer.from(
-          `${process.env.SPOTIFY_CLIENT_ID}:${process.env.SPOTIFY_CLIENT_SECRET}`,
+          `${authEnv.SPOTIFY_CLIENT_ID}:${authEnv.SPOTIFY_CLIENT_SECRET}`,
         ).toString('base64')}`,
       },
       body: new URLSearchParams({
@@ -88,8 +69,8 @@ const nextAuth = NextAuth({
   trustHost: true,
   providers: [
     Spotify({
-      clientId: process.env.SPOTIFY_CLIENT_ID,
-      clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+      clientId: authEnv.SPOTIFY_CLIENT_ID,
+      clientSecret: authEnv.SPOTIFY_CLIENT_SECRET,
       authorization: {
         url: 'https://accounts.spotify.com/authorize',
         params: {
@@ -132,21 +113,19 @@ const nextAuth = NextAuth({
       const redirectUrl = new URL(url, baseUrl);
 
       if (
-        process.env.NODE_ENV === 'development' &&
+        authEnv.NODE_ENV === 'development' &&
         redirectUrl.hostname === 'localhost'
       ) {
         redirectUrl.hostname = '127.0.0.1';
       }
 
-      const canonicalOrigin = canonicalAuthUrl
-        ? new URL(canonicalAuthUrl).origin
-        : baseUrl;
+      const canonicalOrigin = new URL(canonicalAuthUrl).origin;
 
       if (redirectUrl.origin === canonicalOrigin) {
         return redirectUrl.toString();
       }
 
-      return canonicalAuthUrl ?? baseUrl;
+      return canonicalAuthUrl;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
