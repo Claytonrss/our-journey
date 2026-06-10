@@ -9,7 +9,15 @@ import { z } from 'zod';
 import { MemorySchema } from '../src/types';
 import { getCloudinaryEnv } from '../src/lib/env';
 
-const cloudinaryEnv = getCloudinaryEnv();
+let cloudinaryEnv: ReturnType<typeof getCloudinaryEnv>;
+
+try {
+  cloudinaryEnv = getCloudinaryEnv();
+} catch {
+  console.log('⚠️  Cloudinary env not configured, skipping generation.');
+  console.log('   memories.json will be used as-is from the repository.');
+  process.exit(0);
+}
 
 // Configurar o SDK do Cloudinary
 cloudinary.config({
