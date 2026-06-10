@@ -1,0 +1,64 @@
+'use client';
+
+import { motion } from 'framer-motion';
+
+interface TimelineHeaderProps {
+  totalPlaces: number;
+  yearSpan: number;
+  totalPhotos: number;
+}
+
+export function TimelineHeader({
+  totalPlaces,
+  yearSpan,
+  totalPhotos,
+}: TimelineHeaderProps) {
+  return (
+    <div className="pt-24 pb-16">
+      <motion.p
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+        className="uppercase tracking-[0.12em]"
+        style={{
+          fontFamily: 'var(--font-playfair)',
+          fontStyle: 'italic',
+          fontSize: '13px',
+          color: 'var(--gold)',
+          opacity: 0.6,
+        }}
+      >
+        Nossa história
+      </motion.p>
+
+      <motion.div
+        initial={{ scaleX: 0 }}
+        animate={{ scaleX: 1 }}
+        transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
+        style={{
+          width: '40px',
+          height: '1px',
+          background: 'var(--gold)',
+          opacity: 0.4,
+          margin: '12px 0 16px',
+          transformOrigin: 'left',
+        }}
+      />
+
+      <motion.p
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, delay: 0.8 }}
+        style={{
+          fontFamily: 'var(--font-ui)',
+          fontSize: '14px',
+          fontWeight: 300,
+          color: 'var(--text-muted)',
+          letterSpacing: '0.02em',
+        }}
+      >
+        {totalPlaces} lugares ◆ {yearSpan} anos ◆ {totalPhotos} fotos
+      </motion.p>
+    </div>
+  );
+}
