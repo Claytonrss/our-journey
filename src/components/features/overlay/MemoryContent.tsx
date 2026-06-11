@@ -62,25 +62,17 @@ export function MemoryContent({
         </>
       )}
 
-      <div className="relative">
+      <div className="relative pb-0 pt-4">
         <p
-          className="line-clamp-4"
           style={{
             fontFamily: 'var(--font-ui)',
             fontSize: '14px',
-            color: 'var(--text-secondary)',
+            color: 'var(--text-muted)',
             lineHeight: 1.7,
           }}
         >
           {memory.description}
         </p>
-        <div
-          className="absolute bottom-0 left-0 right-0 h-8 pointer-events-none"
-          style={{
-            background:
-              'linear-gradient(to bottom, transparent, var(--bg-panel))',
-          }}
-        />
       </div>
     </div>
   );
