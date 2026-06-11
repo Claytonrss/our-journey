@@ -3,6 +3,8 @@
 import React from 'react';
 import { Marker } from 'react-map-gl/mapbox';
 import type { Memory } from '@/types';
+import { DefaultPinSVG } from './DefaultPinSVG';
+import { SpecialPinSVG } from './SpecialPinSVG';
 
 interface MemoryPinProps {
   memory: Memory;
@@ -34,39 +36,13 @@ export const MemoryPin = React.memo(function MemoryPin({
             ? 'drop-shadow(0 0 8px rgba(212, 175, 55, 0.5))'
             : 'drop-shadow(0 0 3px rgba(212, 175, 55, 0.2))',
         }}
-        aria-label={`Ver memória: ${memory.title}`}
+        aria-label={`Ver memória${memory.isSpecialPin ? ' especial' : ''}: ${memory.title}`}
       >
-        {memory.isSpecialPin && (
-          <span
-            className="absolute rounded-full"
-            style={{
-              width: '36px',
-              height: '36px',
-              top: '0',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              border: '2px solid var(--gold)',
-              animation: 'pulse-ring 2s ease-out infinite',
-            }}
-          />
+        {memory.isSpecialPin ? (
+          <SpecialPinSVG isActive={isActive} />
+        ) : (
+          <DefaultPinSVG isActive={isActive} />
         )}
-
-        <svg
-          width={isActive ? 40 : 32}
-          height={isActive ? 44 : 36}
-          viewBox="0 0 32 40"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          className="transition-all duration-500"
-        >
-          <path
-            d="M16 0C8.268 0 2 6.268 2 14c0 7.5 14 26 14 26s14-18.5 14-26C30 6.268 23.732 0 16 0Z"
-            fill="var(--gold)"
-            stroke="rgba(180,150,50,0.6)"
-            strokeWidth={0.5}
-          />
-          <circle cx="16" cy="14" r="4" fill="white" opacity={0.9} />
-        </svg>
 
         {isActive && (
           <span
