@@ -877,7 +877,7 @@
   {
     "id": "sp-serra-negra",
     "title": "Serra Negra, SP",
-    "date": "2023-01-01",
+    "date": "2026-03-16",
     "coordinates": {
       "lat": -22.6105,
       "lng": -46.7027
@@ -1032,7 +1032,7 @@
   {
     "id": "rs-gramado",
     "title": "Gramado, RS",
-    "date": "2023-01-01",
+    "date": "2022-03-27",
     "coordinates": {
       "lat": -29.3807,
       "lng": -50.8736
@@ -1137,7 +1137,7 @@
   {
     "id": "al-maceio",
     "title": "Maceió, AL",
-    "date": "2023-01-01",
+    "date": "2022-08-27",
     "coordinates": {
       "lat": -9.6658,
       "lng": -35.7353
@@ -1488,7 +1488,7 @@
   {
     "id": "ce-flecheiras",
     "title": "Flecheiras, CE",
-    "date": "2023-01-01",
+    "date": "2023-08-22",
     "coordinates": {
       "lat": -3.2217,
       "lng": -39.2635
@@ -2594,7 +2594,7 @@
   {
     "id": "pt-faro",
     "title": "Faro, Portugal",
-    "date": "2023-01-01",
+    "date": "2019-10-18",
     "coordinates": {
       "lat": 37.0194,
       "lng": -7.9322
@@ -2784,7 +2784,7 @@
   {
     "id": "es-madrid",
     "title": "Madrid, Espanha",
-    "date": "2023-01-01",
+    "date": "2019-10-28",
     "coordinates": {
       "lat": 40.4168,
       "lng": -3.7038
@@ -2821,13 +2821,13 @@
   {
     "id": "fr-paris",
     "title": "Paris, França",
-    "date": "2023-01-01",
+    "date": "2019-10-11",
     "coordinates": {
       "lat": 48.8566,
       "lng": 2.3522
     },
-    "isSpecialPin": false,
-    "description": "",
+    "isSpecialPin": true,
+    "description": "Dias inesquecíveis na Cidade Luz.",
     "images": [
       {
         "publicId": "memories/fr-paris/fr-paris_01_winkzk",
