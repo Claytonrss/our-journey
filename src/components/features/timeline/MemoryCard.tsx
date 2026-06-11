@@ -3,7 +3,6 @@
 import { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import { ArrowRight } from 'lucide-react';
 import { useAppStore } from '@/hooks/useAppStore';
 import { CardPhotoHero } from './CardPhotoHero';
 import { CardPhotoStrip } from './CardPhotoStrip';
@@ -51,7 +50,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
       <div className="w-full h-[1px] bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.15)] to-transparent" />
 
       <motion.div
-        className="p-6 md:p-8 flex flex-col gap-6"
+        className="p-6 md:p-8 flex flex-col gap-3"
         variants={{
           hidden: { opacity: 0 },
           visible: {
@@ -94,23 +93,24 @@ export function MemoryCard({ memory }: MemoryCardProps) {
             visible: { opacity: 1, y: 0, transition: { duration: 0.5 } },
           }}
           onClick={handleNavigateToMap}
-          className="group flex items-center gap-2 self-start mt-2 px-5 py-2.5 rounded-full transition-all"
+          className="group flex items-center gap-1 self-start mt-2 text-[13px] transition-all"
           style={{
-            background: 'rgba(212,175,55,0.08)',
-            border: '1px solid rgba(212,175,55,0.15)',
+            color: 'var(--gold)',
+            fontFamily: 'var(--font-ui)',
+            letterSpacing: '0.02em',
+            opacity: 0.7,
+            background: 'none',
+            border: 'none',
+            padding: 0,
+            cursor: 'pointer',
           }}
         >
-          <span
-            className="text-[13px] font-medium tracking-wide transition-colors group-hover:text-white"
-            style={{ color: 'var(--gold)' }}
-          >
+          <span className="group-hover:opacity-100 transition-opacity">
             Ver no mapa
           </span>
-          <ArrowRight
-            size={16}
-            className="transition-transform group-hover:translate-x-1"
-            style={{ color: 'var(--gold)' }}
-          />
+          <span className="group-hover:translate-x-1 transition-transform">
+            →
+          </span>
         </motion.button>
       </motion.div>
     </motion.div>
