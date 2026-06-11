@@ -43,7 +43,7 @@ export function ViewToggle({
       <button
         onClick={() => router.push('/map')}
         className={cn(
-          'px-5 py-2 text-[13px] transition-all duration-300 rounded-full font-medium tracking-wide',
+          'px-6 py-2 text-[13px] transition-all duration-300 rounded-full font-medium tracking-wide whitespace-nowrap',
           !isTimeline
             ? 'bg-[var(--gold-dim)] text-[var(--gold)]'
             : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]',
@@ -55,7 +55,7 @@ export function ViewToggle({
       <button
         onClick={() => router.push('/timeline')}
         className={cn(
-          'px-5 py-2 text-[13px] transition-all duration-300 rounded-full font-medium tracking-wide',
+          'px-6 py-2 text-[13px] transition-all duration-300 rounded-full font-medium tracking-wide whitespace-nowrap',
           isTimeline
             ? 'bg-[var(--gold-dim)] text-[var(--gold)]'
             : 'text-[var(--text-muted)] hover:text-[var(--text-primary)]',
