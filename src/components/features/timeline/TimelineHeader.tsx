@@ -3,16 +3,12 @@
 import { motion } from 'framer-motion';
 
 interface TimelineHeaderProps {
-  totalPlaces: number;
+  totalPlaces?: number;
   yearSpan: number;
-  totalPhotos: number;
+  totalPhotos?: number;
 }
 
-export function TimelineHeader({
-  totalPlaces,
-  yearSpan,
-  totalPhotos,
-}: TimelineHeaderProps) {
+export function TimelineHeader({ yearSpan }: TimelineHeaderProps) {
   return (
     <div className="pt-24 pb-8 text-center">
       <motion.p
@@ -58,7 +54,7 @@ export function TimelineHeader({
           letterSpacing: '0.02em',
         }}
       >
-        {totalPlaces} lugares ◆ {yearSpan} anos ◆ {totalPhotos} fotos
+        {yearSpan} anos ◆ muitos lugares
       </motion.p>
     </div>
   );

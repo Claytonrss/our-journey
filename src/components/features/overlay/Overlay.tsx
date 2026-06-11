@@ -2,7 +2,7 @@
 
 import { CldImage } from 'next-cloudinary';
 import { motion, useDragControls, PanInfo } from 'framer-motion';
-import { ArrowRight, X } from 'lucide-react';
+import { X } from 'lucide-react';
 import { MemoryContent } from './MemoryContent';
 import { MasonryGallery } from './MasonryGallery';
 import { CompassRose } from '@/components/ui/CompassRose';
@@ -390,23 +390,21 @@ function TimelineButton({
     <button
       type="button"
       onClick={() => onNavigateToTimeline(memoryId)}
-      className="group flex items-center gap-2 self-start rounded-full px-5 py-2.5 transition-all"
+      className="group flex items-center gap-1 self-start text-[13px] transition-all cursor-pointer"
       style={{
-        background: 'rgba(212,175,55,0.08)',
-        border: '1px solid rgba(212,175,55,0.15)',
+        color: 'var(--gold)',
+        fontFamily: 'var(--font-ui)',
+        letterSpacing: '0.02em',
+        opacity: 0.7,
+        background: 'none',
+        border: 'none',
+        padding: 0,
       }}
     >
-      <span
-        className="text-[13px] font-medium tracking-wide transition-colors group-hover:text-white"
-        style={{ color: 'var(--gold)' }}
-      >
+      <span className="group-hover:opacity-100 transition-opacity">
         Ver na timeline
       </span>
-      <ArrowRight
-        size={16}
-        className="transition-transform group-hover:translate-x-1"
-        style={{ color: 'var(--gold)' }}
-      />
+      <span className="group-hover:translate-x-1 transition-transform">→</span>
     </button>
   );
 }

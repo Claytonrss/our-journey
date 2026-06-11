@@ -15,10 +15,29 @@ interface LockScreenProps {
 
 const STORAGE_KEY = 'our-journey-audio-preference';
 
+const PIN_PATTERNS = [
+  { regex: /^\d9\d9$/, message: 'Errado! Sabia que você ia tentar a padrão.' },
+  { regex: /^1\d{2}0$/, message: 'Erro :( É uma data mais específica.' },
+  {
+    regex: /^(0000|1234|1111|9999|1212|2020|2026)$/,
+    message: 'Sério? Essa é a primeira que todo mundo tenta.',
+  },
+];
+
+const RANDOM_ERRORS = [
+  'Errou feio, errou rude.',
+  'Tente novamente.',
+  'Essa não é a nossa data...',
+  'Hmm... acho que não.',
+  'Memória falhando?',
+  'Não foi dessa vez.',
+];
+
 export function LockScreen({ hasSession }: LockScreenProps) {
   const router = useRouter();
   const [pin, setPin] = useState('');
   const [isError, setIsError] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
   const [showPinInput, setShowPinInput] = useState(false);
   const [isUnlocking, setIsUnlocking] = useState(false);
   const [mapboxToken, setMapboxToken] = useState<string | null>(null);
@@ -68,14 +87,28 @@ export function LockScreen({ hasSession }: LockScreenProps) {
         }, 800);
       } else {
         setIsError(true);
+        const matched = PIN_PATTERNS.find((p) => p.regex.test(pin));
+        if (matched) {
+          setErrorMessage(matched.message);
+        } else {
+          const randomMsg =
+            RANDOM_ERRORS[Math.floor(Math.random() * RANDOM_ERRORS.length)];
+          setErrorMessage(randomMsg);
+        }
         setPin('');
+        setTimeout(() => {
+          inputRefs.current[0]?.focus();
+        }, 0);
       }
     });
   };
 
   const handleDigitChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return;
-    if (isError) setIsError(false);
+    if (isError) {
+      setIsError(false);
+      setErrorMessage('');
+    }
 
     const newPin = pin.split('');
     newPin[index] = value;
@@ -346,7 +379,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
                 </div>
                 {isError && (
                   <p role="alert" className="text-sm text-red-500">
-                    Código incorreto.
+                    {errorMessage}
                   </p>
                 )}
                 <button
