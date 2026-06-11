@@ -18,9 +18,8 @@ export function MemoryCard({ memory }: MemoryCardProps) {
   const router = useRouter();
 
   const handleNavigateToMap = () => {
-    // Seta a memória ativa (pro flyTo) e também seta como selecionada para já abrir o overlay
+    // Seta a memória ativa para o flyTo no mapa
     setActiveMemoryId(memory.id);
-    setSelectedMemoryId(memory.id);
     router.push('/map');
   };
 
