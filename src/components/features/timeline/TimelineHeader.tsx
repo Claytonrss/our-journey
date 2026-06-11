@@ -14,7 +14,7 @@ export function TimelineHeader({
   totalPhotos,
 }: TimelineHeaderProps) {
   return (
-    <div className="pt-24 pb-8">
+    <div className="pt-24 pb-8 text-center">
       <motion.p
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
@@ -35,13 +35,14 @@ export function TimelineHeader({
         initial={{ scaleX: 0 }}
         animate={{ scaleX: 1 }}
         transition={{ duration: 0.8, delay: 0.5, ease: 'easeOut' }}
+        className="mx-auto"
         style={{
           width: '40px',
           height: '1px',
           background: 'var(--gold)',
           opacity: 0.4,
-          margin: '12px 0 16px',
-          transformOrigin: 'left',
+          margin: '12px auto 16px',
+          transformOrigin: 'center',
         }}
       />
 

@@ -148,7 +148,7 @@ export function TimelinePage() {
       <div className="relative mx-auto max-w-2xl px-6 md:px-12 pb-24">
         <GoldLine scrollYProgress={scrollYProgress} />
 
-        <div className="relative ml-[40px] md:ml-[60px]">
+        <div className="relative">
           <TimelineHeader
             totalPlaces={totalPlaces}
             yearSpan={yearSpan}

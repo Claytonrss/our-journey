@@ -45,12 +45,6 @@ export function MemoryCard({ memory }: MemoryCardProps) {
         boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
       }}
     >
-      {/* Dot conectando na GoldLine */}
-      <div
-        className="absolute left-[-20px] md:left-[-30px] top-[100px] w-1.5 h-1.5 rounded-full z-10 -translate-x-1/2"
-        style={{ background: 'var(--gold)', opacity: 0.6 }}
-      />
-
       <CardPhotoHero memory={memory} cardRef={cardRef} />
 
       {/* Separador sutil */}

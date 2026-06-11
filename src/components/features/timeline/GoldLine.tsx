@@ -8,7 +8,7 @@ interface GoldLineProps {
 
 export function GoldLine({ scrollYProgress }: GoldLineProps) {
   return (
-    <div className="absolute top-0 left-[20px] md:left-[30px] bottom-0 w-[1px] pointer-events-none z-0">
+    <div className="absolute top-0 left-1/2 bottom-0 w-[1px] pointer-events-none z-0 -translate-x-1/2">
       {/* Trilha base discreta */}
       <div
         className="absolute inset-0 w-full h-full"
