@@ -54,9 +54,10 @@ export function CardPhotoHero({ memory, cardRef }: CardPhotoHeroProps) {
           className="italic drop-shadow-md"
           style={{
             fontFamily: 'var(--font-playfair)',
-            fontSize: '11px',
-            color: 'var(--gold)',
+            fontSize: '12px',
+            color: 'var(--text-warm)',
             marginBottom: '4px',
+            textShadow: '0 1px 4px rgba(0,0,0,0.8)',
           }}
         >
           {new Date(memory.date).toLocaleDateString('pt-BR', {

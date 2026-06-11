@@ -7,7 +7,7 @@ import { useAppStore } from '@/hooks/useAppStore';
 interface AudioPlayerProps {
   isPlaying: boolean;
   onTogglePlay: () => void;
-  variant?: 'pill' | 'strip';
+  variant?: 'pill' | 'strip' | 'minimal';
 }
 
 export function AudioPlayer({
@@ -20,6 +20,30 @@ export function AudioPlayer({
   const title = currentTrack?.title || 'Nossa Trilha';
   const artist = currentTrack?.artist || 'Amor & Viagem';
   const albumCover = currentTrack?.albumCover;
+
+  if (variant === 'minimal') {
+    return (
+      <button
+        onClick={onTogglePlay}
+        className="fixed z-30 h-12 w-12 flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+        style={{ bottom: '24px', right: '24px' }}
+        aria-label={isPlaying ? 'Pausar' : 'Reproduzir'}
+      >
+        <div className="w-10 h-10 rounded-full bg-[rgba(0,0,0,0.5)] backdrop-blur-lg border border-[rgba(212,175,55,0.25)] flex items-center justify-center hover:bg-[rgba(212,175,55,0.12)] transition-colors duration-200 shadow-lg">
+          {isPlaying ? (
+            <Pause size={14} fill="var(--gold)" color="var(--gold)" />
+          ) : (
+            <Play
+              size={14}
+              fill="var(--gold)"
+              color="var(--gold)"
+              className="ml-0.5"
+            />
+          )}
+        </div>
+      </button>
+    );
+  }
 
   if (variant === 'strip') {
     return (

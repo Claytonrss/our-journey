@@ -36,7 +36,7 @@ export function MemoryCard({ memory }: MemoryCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-80px' }}
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-      className="relative flex flex-col mb-16 rounded-2xl"
+      className="relative flex flex-col mb-10 rounded-2xl"
       style={{
         background: 'var(--bg-panel)',
         border: memory.isSpecialPin

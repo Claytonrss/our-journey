@@ -13,7 +13,7 @@ export function YearDivider({ year }: YearDividerProps) {
       whileInView={{ x: 0, opacity: 1 }}
       viewport={{ once: true, margin: '-10%' }}
       transition={{ duration: 0.6, ease: 'easeOut' }}
-      className="relative flex items-center justify-between py-12 mb-6"
+      className="relative flex items-center justify-between py-8 mb-4"
     >
       {/* Dot posicionado na GoldLine (usando margem negativa baseada no padding do pai) */}
       <motion.div className="absolute left-[-20px] md:left-[-30px] top-1/2 -translate-y-1/2 -translate-x-1/2 z-10 flex items-center justify-center">

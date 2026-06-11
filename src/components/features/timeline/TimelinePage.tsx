@@ -145,7 +145,7 @@ export function TimelinePage() {
       className="relative min-h-screen overflow-y-auto overflow-x-hidden"
       style={{ background: 'var(--bg-void)' }}
     >
-      <div className="relative mx-auto max-w-2xl px-6 md:px-12 pb-32">
+      <div className="relative mx-auto max-w-2xl px-6 md:px-12 pb-24">
         <GoldLine scrollYProgress={scrollYProgress} />
 
         <div className="relative ml-[40px] md:ml-[60px]">
@@ -169,7 +169,11 @@ export function TimelinePage() {
       </div>
 
       <AnimatePresence>
-        <AudioPlayer isPlaying={isPlaying} onTogglePlay={togglePlay} />
+        <AudioPlayer
+          isPlaying={isPlaying}
+          onTogglePlay={togglePlay}
+          variant="minimal"
+        />
       </AnimatePresence>
       <ViewToggle bottomOffset="24px" />
     </motion.main>
