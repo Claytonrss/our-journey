@@ -162,21 +162,31 @@ function MobileOverlay({
           </button>
 
           <div className="absolute bottom-4 left-6 right-6 z-10">
-            <p
-              className="italic drop-shadow-md"
-              style={{
-                fontFamily: 'var(--font-playfair)',
-                fontSize: '12px',
-                color: 'var(--gold)',
-                marginBottom: '4px',
-              }}
-            >
-              {new Date(memory.date).toLocaleDateString('pt-BR', {
-                day: 'numeric',
-                month: 'long',
-                year: 'numeric',
-              })}
-            </p>
+            <div className="relative inline-block mb-1">
+              <div
+                className="absolute -inset-1 rounded-md pointer-events-none"
+                style={{
+                  background: 'rgba(0,0,0,0.4)',
+                  backdropFilter: 'blur(8px)',
+                  WebkitBackdropFilter: 'blur(8px)',
+                }}
+              />
+              <p
+                className="relative drop-shadow-md"
+                style={{
+                  fontFamily: 'var(--font-ui)',
+                  fontSize: '11px',
+                  color: 'var(--gold)',
+                  letterSpacing: '0.02em',
+                }}
+              >
+                {new Date(memory.date).toLocaleDateString('pt-BR', {
+                  day: 'numeric',
+                  month: 'long',
+                  year: 'numeric',
+                })}
+              </p>
+            </div>
             <h2
               style={{
                 fontFamily: 'var(--font-playfair)',
@@ -203,7 +213,7 @@ function MobileOverlay({
         >
           <MemoryContent memory={memory} hideTitle={true} />
           {galleryImages.length > 0 && (
-            <MasonryGallery images={memory.images} startIndex={0} />
+            <MasonryGallery images={memory.images} startIndex={1} />
           )}
           <TimelineButton
             memoryId={memory.id}
@@ -298,21 +308,31 @@ function DesktopOverlay({
             </button>
 
             <div className="absolute bottom-6 left-8 right-8 z-10">
-              <p
-                className="italic drop-shadow-md"
-                style={{
-                  fontFamily: 'var(--font-playfair)',
-                  fontSize: '13px',
-                  color: 'var(--gold)',
-                  marginBottom: '6px',
-                }}
-              >
-                {new Date(memory.date).toLocaleDateString('pt-BR', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric',
-                })}
-              </p>
+              <div className="relative inline-block mb-1.5">
+                <div
+                  className="absolute -inset-1 rounded-md pointer-events-none"
+                  style={{
+                    background: 'rgba(0,0,0,0.4)',
+                    backdropFilter: 'blur(8px)',
+                    WebkitBackdropFilter: 'blur(8px)',
+                  }}
+                />
+                <p
+                  className="relative drop-shadow-md"
+                  style={{
+                    fontFamily: 'var(--font-ui)',
+                    fontSize: '12px',
+                    color: 'var(--gold)',
+                    letterSpacing: '0.02em',
+                  }}
+                >
+                  {new Date(memory.date).toLocaleDateString('pt-BR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric',
+                  })}
+                </p>
+              </div>
               <h2
                 style={{
                   fontFamily: 'var(--font-playfair)',
@@ -339,7 +359,7 @@ function DesktopOverlay({
           >
             <MemoryContent memory={memory} hideTitle={true} />
             {galleryImages.length > 0 && (
-              <MasonryGallery images={memory.images} startIndex={0} />
+              <MasonryGallery images={memory.images} startIndex={1} />
             )}
             <TimelineButton
               memoryId={memory.id}
