@@ -97,11 +97,43 @@ async function generateMemories() {
   const sourceData = JSON.parse(fs.readFileSync(sourcePath, 'utf-8'));
   const sourceMemories = SourceSchema.parse(sourceData);
 
-  console.log(`🚀 Gerando ${sourceMemories.length} memória(s)...`);
+  // Ler o arquivo existente (se houver)
+  let existingMemories: Array<z.infer<typeof MemorySchema>> = [];
+  if (fs.existsSync(outputPath)) {
+    try {
+      const existingData = JSON.parse(fs.readFileSync(outputPath, 'utf-8'));
+      const listSchema = z.array(MemorySchema);
+      existingMemories = listSchema.parse(existingData);
+      console.log(
+        `📁 memories.json existente carregado com ${existingMemories.length} memória(s).`,
+      );
+    } catch (error) {
+      console.warn(
+        '⚠️  Erro ao ler memories.json existente, gerando do zero:',
+        error,
+      );
+      existingMemories = [];
+    }
+  }
+
+  // Criar mapa de memórias existentes por ID
+  const existingMap = new Map(existingMemories.map((m) => [m.id, m]));
+
+  console.log(`🚀 Processando ${sourceMemories.length} memória(s)...`);
 
   const memories = [];
+  let addedCount = 0;
 
   for (const source of sourceMemories) {
+    const existing = existingMap.get(source.id);
+
+    if (existing) {
+      // Preserva a memória existente inteiramente (incluindo imagens)
+      console.log(`📦 Preservando: ${source.title} (${source.id})`);
+      memories.push(existing);
+      continue;
+    }
+
     console.log(`📁 Buscando imagens em: ${source.cloudinaryFolder}`);
 
     const images = await fetchImagesFromFolder(source.cloudinaryFolder);
@@ -137,6 +169,8 @@ async function generateMemories() {
       description: source.description,
       images: formattedImages,
     });
+
+    addedCount++;
   }
 
   // Validar com Zod
@@ -146,11 +180,16 @@ async function generateMemories() {
   // Salvar o arquivo gerado
   fs.writeFileSync(outputPath, JSON.stringify(validated, null, 2));
 
-  console.log(`\n✨ memories.json gerado com sucesso em: ${outputPath}`);
+  console.log(`\n✨ memories.json atualizado com sucesso em: ${outputPath}`);
   console.log(`📊 Total de memórias: ${validated.length}`);
   console.log(
     `📷 Total de imagens: ${validated.reduce((acc, m) => acc + m.images.length, 0)}`,
   );
+  if (addedCount > 0) {
+    console.log(`🆕 Novas memórias adicionadas: ${addedCount}`);
+  } else {
+    console.log(`✅ Nenhuma memória nova para adicionar.`);
+  }
 }
 
 generateMemories().catch((error) => {

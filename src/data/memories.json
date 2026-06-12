@@ -974,6 +974,61 @@
     ]
   },
   {
+    "id": "sp-holambra",
+    "title": "Holambra, SP",
+    "date": "2021-02-05",
+    "coordinates": {
+      "lat": -22.6333,
+      "lng": -47.0544
+    },
+    "isSpecialPin": false,
+    "description": "Ensaio em Holambra",
+    "images": [
+      {
+        "publicId": "sp-holambra/sp-holambra_01_qnowbl",
+        "alt": "Foto de Holambra, SP 1: sp-holambra/sp-holambra_01_qnowbl",
+        "width": 1080,
+        "height": 810
+      },
+      {
+        "publicId": "sp-holambra/sp-holambra_02_o5ihjo",
+        "alt": "Foto de Holambra, SP 2: sp-holambra/sp-holambra_02_o5ihjo",
+        "width": 1080,
+        "height": 720
+      },
+      {
+        "publicId": "sp-holambra/sp-holambra_03_ov4f8i",
+        "alt": "Foto de Holambra, SP 3: sp-holambra/sp-holambra_03_ov4f8i",
+        "width": 1080,
+        "height": 715
+      },
+      {
+        "publicId": "sp-holambra/sp-holambra_04_dnz7py",
+        "alt": "Foto de Holambra, SP 4: sp-holambra/sp-holambra_04_dnz7py",
+        "width": 1080,
+        "height": 720
+      },
+      {
+        "publicId": "sp-holambra/sp-holambra_05_pbghfn",
+        "alt": "Foto de Holambra, SP 5: sp-holambra/sp-holambra_05_pbghfn",
+        "width": 1080,
+        "height": 720
+      },
+      {
+        "publicId": "sp-holambra/sp-holambra_06_tqvlcn",
+        "alt": "Foto de Holambra, SP 6: sp-holambra/sp-holambra_06_tqvlcn",
+        "width": 1080,
+        "height": 720
+      },
+      {
+        "publicId": "sp-holambra/sp-holambra_07_myx347",
+        "alt": "Foto de Holambra, SP 7: sp-holambra/sp-holambra_07_myx347",
+        "width": 1080,
+        "height": 720
+      }
+    ]
+  },
+  {
     "id": "pr-curitiba",
     "title": "Curitiba, PR",
     "date": "2018-12-22",
