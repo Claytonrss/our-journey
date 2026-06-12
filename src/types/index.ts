@@ -38,6 +38,7 @@ export interface AppState {
   isPlaying: boolean;
   currentTrack: CurrentTrack | null;
   isPinValidated: boolean;
+  isHeadphonesComplete: boolean;
   useLocalAudio: boolean;
 
   // Ações
@@ -47,5 +48,6 @@ export interface AppState {
   setIsPlaying: (playing: boolean) => void;
   setCurrentTrack: (track: CurrentTrack | null) => void;
   setPinValidated: (status: boolean) => void;
+  setHeadphonesComplete: (status: boolean) => void;
   setUseLocalAudio: (status: boolean) => void;
 }

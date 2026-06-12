@@ -184,6 +184,7 @@ function MobileOverlay({
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric',
+                  timeZone: 'UTC',
                 })}
               </p>
             </div>
@@ -330,6 +331,7 @@ function DesktopOverlay({
                     day: 'numeric',
                     month: 'long',
                     year: 'numeric',
+                    timeZone: 'UTC',
                   })}
                 </p>
               </div>

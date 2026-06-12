@@ -15,12 +15,13 @@ export function GlobalAudio() {
     setCurrentTrack,
     setUseLocalAudio,
     isPinValidated,
+    isHeadphonesComplete,
   } = useAppStore();
 
   const initializedRef = useRef(false);
 
   useEffect(() => {
-    if (!isPinValidated) return;
+    if (!isPinValidated || !isHeadphonesComplete) return;
 
     if (session?.error === 'RefreshAccessTokenError' && !useLocalAudio) {
       signOut();
@@ -94,6 +95,7 @@ export function GlobalAudio() {
     setCurrentTrack,
     setUseLocalAudio,
     isPinValidated,
+    isHeadphonesComplete,
   ]);
 
   return null;

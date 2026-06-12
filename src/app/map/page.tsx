@@ -16,7 +16,10 @@ import {
 import { NavigationOverlay } from '@/components/features/map/NavigationOverlay';
 import { Overlay } from '@/components/features/overlay/Overlay';
 import { AudioPlayer } from '@/components/features/player/AudioPlayer';
-import { IntroScreen } from '@/components/features/IntroScreen';
+import {
+  IntroScreen,
+  HeadphonesScreen,
+} from '@/components/features/IntroScreen';
 import { ViewToggle } from '@/components/ui/ViewToggle';
 import type { Memory } from '@/types';
 
@@ -35,6 +38,24 @@ export default function MapPage() {
   const isMobile = useIsMobile();
   const initializedRef = useRef(false);
   const { isPlaying, togglePlay } = useAudioPlayer();
+
+  const headphonesSeenOnMount =
+    typeof window !== 'undefined' &&
+    sessionStorage.getItem('headphones-seen') === 'true';
+
+  const [headphonesComplete, setHeadphonesComplete] = useState(
+    headphonesSeenOnMount,
+  );
+
+  const setGlobalHeadphonesComplete = useAppStore(
+    (state) => state.setHeadphonesComplete,
+  );
+
+  useEffect(() => {
+    if (headphonesSeenOnMount) {
+      setGlobalHeadphonesComplete(true);
+    }
+  }, [headphonesSeenOnMount, setGlobalHeadphonesComplete]);
 
   const introSeenOnMount =
     typeof window !== 'undefined' &&
@@ -88,6 +109,17 @@ export default function MapPage() {
   if (webglSupported === false) {
     return (
       <MapFallback message="Seu navegador não suporta WebGL, necessário para exibir o mapa." />
+    );
+  }
+
+  if (!headphonesComplete) {
+    return (
+      <HeadphonesScreen
+        onComplete={() => {
+          setHeadphonesComplete(true);
+          setGlobalHeadphonesComplete(true);
+        }}
+      />
     );
   }
 

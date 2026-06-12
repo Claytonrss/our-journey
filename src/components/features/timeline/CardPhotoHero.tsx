@@ -63,6 +63,7 @@ export function CardPhotoHero({ memory, cardRef }: CardPhotoHeroProps) {
           {new Date(memory.date).toLocaleDateString('pt-BR', {
             day: 'numeric',
             month: 'long',
+            timeZone: 'UTC',
           })}
         </motion.span>
 

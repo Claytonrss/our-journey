@@ -8,6 +8,7 @@ export const useAppStore = create<AppState>((set) => ({
   isPlaying: false,
   currentTrack: null,
   isPinValidated: false,
+  isHeadphonesComplete: false,
   useLocalAudio: false,
 
   setActiveMemoryId: (id: string | null) => set({ activeMemoryId: id }),
@@ -16,5 +17,7 @@ export const useAppStore = create<AppState>((set) => ({
   setIsPlaying: (playing: boolean) => set({ isPlaying: playing }),
   setCurrentTrack: (track: CurrentTrack | null) => set({ currentTrack: track }),
   setPinValidated: (status: boolean) => set({ isPinValidated: status }),
+  setHeadphonesComplete: (status: boolean) =>
+    set({ isHeadphonesComplete: status }),
   setUseLocalAudio: (status: boolean) => set({ useLocalAudio: status }),
 }));

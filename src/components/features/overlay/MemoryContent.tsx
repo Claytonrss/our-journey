@@ -15,6 +15,7 @@ export function MemoryContent({
     day: 'numeric',
     month: 'long',
     year: 'numeric',
+    timeZone: 'UTC',
   });
 
   return (
