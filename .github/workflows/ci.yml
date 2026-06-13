@@ -25,5 +25,7 @@ jobs:
         run: pnpm run format:check
       - name: Run Linter
         run: pnpm run lint
+      - name: Run Unit Tests
+        run: pnpm run test
       - name: Verify TypeScript & Build
         run: pnpm run build
