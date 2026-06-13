@@ -1,6 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('publicEnv', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
   it('exposes the NEXT_PUBLIC_SPOTIFY_PLAYLIST_URI', async () => {
     process.env.NEXT_PUBLIC_SPOTIFY_PLAYLIST_URI = 'spotify:playlist:abc123';
     const { publicEnv } = await import('@/lib/publicEnv');

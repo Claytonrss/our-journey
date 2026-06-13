@@ -1,6 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 
 describe('env module', () => {
+  beforeEach(() => {
+    vi.resetModules();
+  });
   describe('getPinEnv()', () => {
     it('validates a 4-digit PIN', async () => {
       process.env.SECRET_PIN = '1234';
