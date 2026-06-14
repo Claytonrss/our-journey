@@ -73,3 +73,37 @@ Memory data lives in `src/data/memories.json` and is validated against the Zod `
 ## opencode.json permissions
 
 Both `edit` and `bash` are set to `"ask"` — the agent must request approval before modifying files or running shell commands.
+
+## Superpowers + ECC — Orquestração
+
+Este projeto usa **Superpowers** como espinha dorsal metodológica e **ECC** para especialização sob demanda.
+
+### Regras de Orquestração
+
+- **Fluxo de vida**: sempre seguir skills do Superpowers (brainstorming -> spec -> plano -> TDD -> review)
+- **Subagentes ECC**: usar sob demanda quando a tarefa pedir profundidade extra ou especialização
+- **Conflito**: se Superpowers e ECC oferecem a mesma skill, Superpowers comanda QUANDO e COMO; ECC fornece O QUÊ
+
+### Subagentes ECC disponíveis
+
+| Skill                | Quando usar                                                                                |
+| -------------------- | ------------------------------------------------------------------------------------------ |
+| `ecc-security-audit` | Features com auth, APIs, dados sensíveis. Após implementação, antes de merge.              |
+| `ecc-deep-review`    | Review profundo (security, performance, edge cases). Complementa `requesting-code-review`. |
+| `ecc-debug`          | Debug avançado quando `systematic-debugging` não resolveu. Bugs multi-sistema.             |
+
+### Memória Persistente
+
+Ao iniciar sessão, ler `docs/superpowers/memory/`:
+
+- `architecture.md` — Decisões arquiteturais, stack, dependências
+- `decisions.md` — Registro de decisões (ADR-style)
+- `patterns.md` — Padrões e convenções
+- `known-issues.md` — Issues conhecidas e workarounds
+
+Ao completar feature significativa, perguntar se deve atualizar os arquivos de memória.
+NUNCA remover informações — apenas adicionar ou marcar como resolvido com ~~strikethrough~~.
+
+### Context7 + Docs
+
+Context7 continua como canal primário para documentação de bibliotecas. ECC skills NÃO substituem Context7 para lookup de docs.
