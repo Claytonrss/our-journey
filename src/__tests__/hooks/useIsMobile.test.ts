@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook } from '@testing-library/react';
+import { renderHook, act } from '@testing-library/react';
 import { useIsMobile } from '@/hooks/useIsMobile';
 
 describe('useIsMobile', () => {
@@ -50,6 +50,32 @@ describe('useIsMobile', () => {
     }));
 
     const { result } = renderHook(() => useIsMobile(1024));
+    expect(result.current).toBe(true);
+  });
+
+  it('updates state on media query change event', () => {
+    let capturedHandler: ((e: MediaQueryListEvent) => void) | null = null;
+    window.matchMedia = vi.fn().mockImplementation(() => ({
+      matches: false,
+      media: '(max-width: 767px)',
+      onchange: null,
+      addListener: vi.fn(),
+      removeListener: vi.fn(),
+      addEventListener: vi.fn(
+        (_type: string, handler: (e: MediaQueryListEvent) => void) => {
+          capturedHandler = handler;
+        },
+      ),
+      removeEventListener: vi.fn(),
+      dispatchEvent: vi.fn(),
+    }));
+
+    const { result } = renderHook(() => useIsMobile());
+    expect(result.current).toBe(false);
+
+    act(() => {
+      capturedHandler!({ matches: true } as MediaQueryListEvent);
+    });
     expect(result.current).toBe(true);
   });
 });

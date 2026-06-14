@@ -68,6 +68,25 @@ describe('env module', () => {
     });
   });
 
+  describe('getCloudinaryEnv()', () => {
+    it('validates cloudinary env vars', async () => {
+      process.env.CLOUDINARY_CLOUD_NAME = 'my-cloud';
+      process.env.CLOUDINARY_API_KEY = '123456789';
+      process.env.CLOUDINARY_API_SECRET = 'abc123-secret';
+      const { getCloudinaryEnv } = await import('@/lib/env');
+      const env = getCloudinaryEnv();
+      expect(env.CLOUDINARY_CLOUD_NAME).toBe('my-cloud');
+      expect(env.CLOUDINARY_API_KEY).toBe('123456789');
+      expect(env.CLOUDINARY_API_SECRET).toBe('abc123-secret');
+    });
+
+    it('throws when CLOUDINARY_CLOUD_NAME is missing', async () => {
+      delete process.env.CLOUDINARY_CLOUD_NAME;
+      const { getCloudinaryEnv } = await import('@/lib/env');
+      expect(() => getCloudinaryEnv()).toThrow();
+    });
+  });
+
   describe('getCanonicalAuthUrl()', () => {
     it('normalizes localhost to 127.0.0.1 in development', async () => {
       process.env.NODE_ENV = 'development';
