@@ -28,7 +28,7 @@ test.describe('PIN Flow', () => {
     }
     await page.locator('button[type="submit"]').click();
 
-    await expect(page.locator('[role="alert"]')).toBeVisible();
+    await expect(page.getByRole('alert').first()).toBeVisible();
 
     expect(page.url()).not.toContain('/map');
   });
