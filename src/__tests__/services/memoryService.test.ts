@@ -49,4 +49,19 @@ describe('memoryService', () => {
     const { memoryService } = await import('@/services/memoryService');
     await expect(memoryService.getMemories()).rejects.toThrow();
   });
+
+  it('returns empty array on import error in production mode', async () => {
+    vi.stubEnv('NODE_ENV', 'production');
+    vi.resetModules();
+    vi.doMock('@/data/memories.json', () => ({
+      default: 'not-an-array',
+    }));
+
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const { memoryService } = await import('@/services/memoryService');
+    const result = await memoryService.getMemories();
+    expect(result).toEqual([]);
+    expect(consoleSpy).toHaveBeenCalled();
+    vi.unstubAllEnvs();
+  });
 });
