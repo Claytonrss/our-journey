@@ -534,7 +534,7 @@ src/
 
 - [ ] **Step 5: Create `docs/superpowers/memory/known-issues.md`**
 
-```markdown
+````markdown
 # Issues Conhecidas — Our Journey
 
 ## Vitest < 3.2.6 — CRITICAL (Resolvido)
@@ -542,6 +542,8 @@ src/
 - ```CRITICAL: arbitrary file read/execute via Vitest UI server (GHSA-5xrq-8626-4rwp)~~~
 
   ```
+````
+
 - **Resolução**: upgrade para Vitest 3.x (plano `2026-06-13-practical-improvements.md`)
 
 ## esbuild < 0.28.1 — HIGH (Resolvido)
@@ -549,6 +551,7 @@ src/
 - ```HIGH: integridade de binário comprometida~~~
 
   ```
+
 - **Resolução**: atualização transitiva via upgrade do Vitest/Vite
 
 ## PIN sem rate limiting — HIGH (Resolvido)
@@ -556,6 +559,7 @@ src/
 - ```4-digit PIN pode ser brute-forced em segundos~~~
 
   ```
+
 - **Resolução**: rate limiting 5 tentativas/60s implementado na server action (plano `2026-06-13-practical-improvements.md`)
 
 ## Token Mapbox sem restrição de origem — MEDIUM
@@ -575,6 +579,7 @@ src/
 - ```postcss < 8.5.10, XSS em stringify CSS (via Next.js)~~~
 
   ```
+
 - **Status**: aguardando Next.js incorporar postcss >= 8.5.10
 - **Mitigação**: monitorar advisories do Next.js
 
@@ -583,11 +588,13 @@ src/
 - ```Vite <= 6.4.1 path traversal em optimized deps sourcemaps~~~
 
   ```
+
 - **Status**: aguardando resolução upstream
 - **Mitigação**: ambiente de dev local; CI usa `--frozen-lockfile`
 
 (Atualizado em 2026-06-14 — preencher ao longo das sessões)
-```
+
+````
 
 - [ ] **Step 6: Verify all files were created**
 
@@ -596,7 +603,7 @@ Run:
 ```bash
 ls -la docs/superpowers/memory/
 wc -l docs/superpowers/memory/*.md
-```
+````
 
 Expected: 4 files, each with content.
 

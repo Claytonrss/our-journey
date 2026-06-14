@@ -246,7 +246,7 @@ Cada arquivo segue um template:
 
 **known-issues.md**:
 
-```markdown
+````markdown
 # Issues Conhecidas — Our Journey
 
 ## Vitest < 3.2.6 (Resolvido)
@@ -254,6 +254,8 @@ Cada arquivo segue um template:
 - ```CRITICAL: arbitrary file read/execute no Vitest UI~~~
 
   ```
+````
+
 - Resolvido em: upgrade para Vitest 3.x (plano practical-improvements)
 
 ## PIN sem rate limiting (Resolvido)
@@ -261,9 +263,11 @@ Cada arquivo segue um template:
 - ```4-digit PIN pode ser brute-forced~~~
 
   ```
+
 - Resolvido em: rate limiting 5 tentativas/60s (plano practical-improvements)
 
 (Adicionar novas issues ao longo das sessões)
+
 ```
 
 ---
@@ -358,3 +362,4 @@ Esta integração NÃO invalida nenhum plano. Ela melhora o ambiente de execuç�
 | Local das bridge skills | Global (path exato depende da instalacao do ECC)           | Precisa confirmar durante instalacao                                             |
 | Configuração ECC        | `ECC_HOOK_PROFILE=minimal` + hooks desabilitados seletivos | Minimiza conflitos com Superpowers                                               |
 | Permissões              | Mantido `ask/ask`                                          | Controle humano sobre modificações                                               |
+```
