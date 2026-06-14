@@ -8,39 +8,13 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { validatePin } from '@/app/actions/auth';
 import { CompassRose } from '@/components/ui/CompassRose';
 import Map from 'react-map-gl/mapbox';
+import { getPinErrorMessage, PIN_PATTERNS } from '@/lib/pin-validation';
 
 interface LockScreenProps {
   hasSession: boolean;
 }
 
 const STORAGE_KEY = 'our-journey-audio-preference';
-
-const PIN_PATTERNS = [
-  { regex: /^\d9\d9$/, message: 'Errado! Sabia que você ia tentar a padrão.' },
-  { regex: /^1\d{2}5$/, message: 'Erro :( É uma data mais específica.' },
-  {
-    regex: /^0\d{2}9$/,
-    message: 'Errou! Não é o aniversário de uma pessoa.',
-  },
-  {
-    regex: /^0\d{2}0$/,
-    message: 'Nops... Tente de novo.',
-  },
-  {
-    regex: /^(0000|1234|1111|9999|1212|2020|2026)$/,
-    message: 'Sério? Essa é a primeira que todo mundo tenta.',
-  },
-];
-
-const RANDOM_ERRORS = [
-  'Errou feio, errou rude.',
-  'Tente outra vez...',
-  'Essa não é a nossa data...',
-  'Hmm... acho que não.',
-  'Memória falhando?',
-  'Não foi dessa vez.',
-  'Ops! Continue tentando',
-];
 
 export function LockScreen({ hasSession }: LockScreenProps) {
   const router = useRouter();
@@ -96,14 +70,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
         }, 800);
       } else {
         setIsError(true);
-        const matched = PIN_PATTERNS.find((p) => p.regex.test(pin));
-        if (matched) {
-          setErrorMessage(matched.message);
-        } else {
-          const randomMsg =
-            RANDOM_ERRORS[Math.floor(Math.random() * RANDOM_ERRORS.length)];
-          setErrorMessage(randomMsg);
-        }
+        setErrorMessage(getPinErrorMessage(pin, PIN_PATTERNS));
         setPin('');
         setTimeout(() => {
           inputRefs.current[0]?.focus();
