@@ -41,13 +41,12 @@ describe('memoryService', () => {
     }
   });
 
-  it('returns empty array on validation error', async () => {
+  it('throws on invalid memories in non-production mode', async () => {
     vi.doMock('@/data/memories.json', () => ({
       default: [{ id: 'bad', invalid: true }],
     }));
 
     const { memoryService } = await import('@/services/memoryService');
-    const result = await memoryService.getMemories();
-    expect(result).toEqual([]);
+    await expect(memoryService.getMemories()).rejects.toThrow();
   });
 });
