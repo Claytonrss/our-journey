@@ -2,7 +2,7 @@
 
 import { useSyncExternalStore } from 'react';
 
-function detectWebGL(): boolean {
+export function detectWebGL(): boolean {
   try {
     const canvas = document.createElement('canvas');
     const gl =
