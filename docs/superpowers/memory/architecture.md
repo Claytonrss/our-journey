@@ -69,24 +69,11 @@
 - **Auth**: NextAuth v5 beta (Spotify OAuth) + local PIN lock (`SECRET_PIN` env) via Server Action.
 - **Cloudinary**: `CldImage` with `publicId` from schema; transforms declarative.
 - **Audio**: Dual-mode — HTML5 local fallback + Spotify SDK via `GlobalAudio`.
-- **Memórias**: JSON versionado em `src/data/memories.json`, gerado via `pnpm run generate` a partir de `memories-source.json`, validado por Zod.
+- **Memories**: JSON versioned in `src/data/memories.json`, generated via `pnpm run generate` from `memories-source.json`, Zod-validated.
 
 ## Directory Responsibilities
 
-```
-src/
-├── app/            # App Router: pages, API routes (BFF), server actions
-├── components/
-│   ├── features/   # Feature-grouped: auth, map, overlay, player, timeline, IntroScreen
-│   └── ui/         # Shared primitives: CompassRose, ViewToggle
-├── hooks/          # Custom hooks + Zustand store (useAppStore)
-├── lib/            # Pure utilities: cn(), env, memory-grouping, navigation-utils, pin-validation, publicEnv
-├── services/       # External integrations: Spotify, memory data, HTML5 audio
-├── types/          # Zod schemas + TS types (Memory, AppState, CurrentTrack)
-├── data/           # Static JSON: memories.json (generated), memories-source.json (source)
-└── __tests__/      # Vitest tests mirroring src/ structure
-scripts/            # generate-memories.ts (Cloudinary sync)
-```
+See `docs/superpowers/memory/patterns.md` for full directory structure with descriptions.
 
 ## Data Flow
 
@@ -130,10 +117,10 @@ export function MyComponent({ memory, onAction }: MyComponentProps) {
 
 ## Critical Dependencies
 
-- `react-map-gl`: renderização WebGL do mapa — nunca desmontar
-- `next-auth@beta`: Spotify OAuth com refresh token em `src/auth.ts`
-- `zustand`: estado global client-side (`useAppStore`)
-- `zod`: validação de contratos (Memory, CurrentTrack, env)
+- `react-map-gl`: WebGL map rendering — never unmount
+- `next-auth@beta`: Spotify OAuth with refresh token in `src/auth.ts`
+- `zustand`: client-side global state (`useAppStore`)
+- `zod`: contract validation (Memory, CurrentTrack, env)
 
 ## Environment Variables
 
@@ -141,9 +128,9 @@ Copy `.env.example` → `.env.local`. Required: `SECRET_PIN`, `AUTH_SECRET`, `AU
 
 ## Implementation Decisions
 
-- Dev server em `127.0.0.1` (não `localhost`) para resolução de OAuth
-- `next/font/google` para DM Sans (body) + Playfair Display (headings) + Lora (editorial)
-- `lang="pt-BR"` no `<html>`
-- Permissões opencode: `edit: ask`, `bash: ask`
+- Dev server on `127.0.0.1` (not `localhost`) for Spotify OAuth redirect resolution
+- `next/font/google` for DM Sans (body) + Playfair Display (headings) + Lora (editorial)
+- `lang="pt-BR"` on `<html>`
+- opencode permissions: `edit: ask`, `bash: ask`
 
 (Updated 2026-06-14 — fill in as sessions progress)

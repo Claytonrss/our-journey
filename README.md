@@ -69,8 +69,7 @@ pnpm run generate     # Sync Cloudinary → memories.json
 | [Engenharia](docs/ENGINEERING.md)   | Fluxo de trabalho, checklist de PR, comandos, convenções       |
 | [Roadmap](docs/ROADMAP.md)          | Próximas fases: curto, médio e longo prazo                     |
 | [Changelog](docs/CHANGELOG.md)      | Histórico de releases e melhorias                              |
-| [HLD](docs/HLD.md)                  | Visão de alto nível (histórico, 2026-05-24)                    |
-| [PRD](docs/PRD.md)                  | Requisitos de produto (histórico, 2026-05-24)                  |
+| [Backlog](docs/BACKLOG.md)          | Itens não agendados por prioridade                             |
 
 ---
 

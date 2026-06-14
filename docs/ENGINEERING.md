@@ -205,7 +205,7 @@ Atualize documentação quando:
 Documentos principais:
 
 - `docs/ARCHITECTURE.md`: arquitetura operacional e decisões técnicas.
-- `docs/HLD.md`: visão de alto nível (histórico).
+- `docs/ARCHITECTURE.md`: arquitetura operacional e decisões técnicas.
 - `docs/ROADMAP.md`: próximas fases.
 - `docs/CHANGELOG.md`: histórico de releases.
 - `.env.example`: contrato público de configuração local.

@@ -1,6 +1,24 @@
-# Architecture
+# Arquitetura
 
-Este documento descreve a arquitetura atual do Our Journey e os guardrails para evoluir o projeto sem quebrar suas decisões centrais. O `docs/HLD.md` continua sendo a visão de alto nível; este arquivo é o guia operacional para entender onde cada coisa vive, como os fluxos passam pelo sistema e quais limites devem ser preservados.
+> Guia operacional: onde cada coisa vive, como os fluxos passam pelo sistema, quais guardrails preservar.
+
+## Índice
+
+- [Objetivos Arquiteturais](#objetivos-arquiteturais)
+- [Stack](#stack)
+- [Visão Geral](#visão-geral)
+- [Diretórios e Responsabilidades](#diretórios-e-responsabilidades)
+- [Fluxos Principais](#fluxos-principais)
+- [BFF e Segredos](#bff-e-segredos)
+- [Estado Global](#estado-global)
+- [Client vs Server](#client-vs-server)
+- [Configuração](#configuração)
+- [Resiliência Atual](#resiliência-atual)
+- [Observabilidade](#observabilidade)
+- [Qualidade e Verificação](#qualidade-e-verificação)
+- [Estratégia de Testes](#estratégia-de-testes)
+- [Roadmap e Backlog](#roadmap-e-backlog)
+- [Checklist Para Novas Features](#checklist-para-novas-features)
 
 ## Objetivos Arquiteturais
 
