@@ -6,6 +6,10 @@ import { motion, useScroll, AnimatePresence } from 'framer-motion';
 import { useAppStore } from '@/hooks/useAppStore';
 import { memoryService } from '@/services/memoryService';
 import { useAudioPlayer } from '@/hooks/useAudioPlayer';
+import {
+  groupMemoriesByYear,
+  calculateMemoryStats,
+} from '@/lib/memory-grouping';
 import { ViewToggle } from '@/components/ui/ViewToggle';
 import { AudioPlayer } from '@/components/features/player/AudioPlayer';
 import { TimelineHeader } from './TimelineHeader';
@@ -111,30 +115,9 @@ export function TimelinePage() {
   }
 
   const totalPlaces = memories.length;
-  const totalPhotos = memories.reduce((acc, m) => acc + m.images.length, 0);
+  const { totalPhotos, yearSpan } = calculateMemoryStats(memories);
 
-  let yearSpan = 0;
-  if (memories.length > 0) {
-    const years = memories.map((m) => new Date(m.date).getFullYear());
-    const minYear = Math.min(...years);
-    const maxYear = Math.max(...years);
-    yearSpan = maxYear - minYear + 1;
-  }
-
-  // Agrupar memórias por ano cronologicamente
-  const sortedMemories = [...memories].sort(
-    (a, b) => new Date(a.date).getTime() - new Date(b.date).getTime(),
-  );
-
-  const yearGroups = new Map<number, Memory[]>();
-  sortedMemories.forEach((memory) => {
-    const year = new Date(memory.date).getFullYear();
-    if (!yearGroups.has(year)) {
-      yearGroups.set(year, []);
-    }
-    yearGroups.get(year)!.push(memory);
-  });
-  const yearEntries = Array.from(yearGroups.entries());
+  const yearEntries = Array.from(groupMemoriesByYear(memories).entries());
 
   return (
     <motion.main
