@@ -1,4 +1,4 @@
-# Decisões — Our Journey
+# Decisions — Our Journey
 
 ## ADR-001: Arquitetura BFF para Segredos de API
 
@@ -28,4 +28,4 @@
 - **Decisão**: Abordagem híbrida: Superpowers como espinha dorsal, ECC com `ECC_HOOK_PROFILE=minimal`. Bridge skills em AGENTS.md. Memória em markdown versionado.
 - **Consequências**: Dois plugins para manter. Hooks do ECC desligados seletivamente. Memória manual (não automática).
 
-(Adicionar novas decisões ao longo das sessões)
+(Add new decisions as sessions progress)

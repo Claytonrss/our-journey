@@ -37,13 +37,16 @@ Antes de entregar:
 pnpm run dev
 pnpm run lint
 pnpm run format:check
+pnpm run test
+pnpm run test:coverage
+pnpm run test:e2e
 pnpm run build
 ```
 
 Regras:
 
 - `pnpm run build` é obrigatório para mudanças em tipos, rotas, config, dados, auth, Mapbox, Spotify ou Cloudinary.
-- `pnpm run lint` e `pnpm run format:check` devem passar antes de PR.
+- `pnpm run lint`, `pnpm run format:check` e `pnpm run test` devem passar antes de PR.
 - `pnpm run format` pode ser usado, mas evite formatar arquivos fora do escopo sem necessidade.
 - Não usar npm ou yarn.
 
@@ -165,16 +168,29 @@ Exemplos:
 
 ## Testes
 
-Hoje não há suíte automatizada. A direção aprovada está em `docs/ARCHITECTURE.md`.
+O projeto possui suíte automatizada com Vitest (unitário) e Playwright (E2E).
 
-Quando a base for criada, a expectativa será:
+Comandos:
 
-- unitários para schemas, env, helpers e route handlers;
-- testes de componentes para UI com decisão lógica;
-- Playwright para PIN, mapa mockado, overlay, fallback e responsividade;
-- mocks para Spotify, Mapbox e Cloudinary nos testes automatizados.
+```bash
+pnpm run test           # Vitest unitários
+pnpm run test:coverage  # Vitest com thresholds (>75%)
+pnpm run test:e2e       # Playwright E2E
+```
 
-Não adicionar testes que dependam de contas reais, tokens reais ou estado externo instável.
+- Mocks para Spotify, Mapbox e Cloudinary nos testes automatizados.
+- Não adicionar testes que dependam de contas reais ou tokens reais.
+
+Ver `docs/superpowers/memory/patterns.md` (seção "Testing") para convenções detalhadas e `docs/ARCHITECTURE.md` para a estratégia de testes.
+
+## Design System e Padrões de Código
+
+Ver `docs/superpowers/memory/patterns.md` para:
+
+- Design system completo (cores, tipografia, border radius, animações)
+- Convenções de código (Prettier, ESLint, import order)
+- Padrões de nomenclatura e estrutura de diretórios
+- Copy e tom emocional
 
 ## Documentação
 
@@ -184,14 +200,14 @@ Atualize documentação quando:
 - uma env var for adicionada, removida ou renomeada;
 - um contrato de dados mudar;
 - uma integração externa mudar;
-- um novo guardrail virar necessário;
 - uma decisão arquitetural alterar o comportamento esperado.
 
 Documentos principais:
 
-- `docs/ARCHITECTURE.md`: arquitetura operacional e plano técnico.
-- `docs/HLD.md`: visão de alto nível.
-- `docs/features/`: decisões e escopo por feature.
+- `docs/ARCHITECTURE.md`: arquitetura operacional e decisões técnicas.
+- `docs/ARCHITECTURE.md`: arquitetura operacional e decisões técnicas.
+- `docs/ROADMAP.md`: próximas fases.
+- `docs/CHANGELOG.md`: histórico de releases.
 - `.env.example`: contrato público de configuração local.
 
 ## Commits

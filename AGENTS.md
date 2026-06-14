@@ -1,109 +1,108 @@
 # AGENTS.md — Our Journey
 
-## Package manager
+## 1. Project Identity
 
-- Use **pnpm** for everything (`pnpm install`, `pnpm run …`), never npm or yarn.
-- CI locks pnpm 9; `pnpm-lock.yaml` is the source of truth.
+- **Name:** Our Journey
+- **Purpose:** Interactive geo-spatial memory map — romantic gift for Marina, also a tech portfolio showcase
+- **Audience:** Marina (mobile-first, Portuguese copy, emotional UX), then tech recruiters
+- **Deploy URL:** https://our-journey-cm.vercel.app/map
+- **Rule:** Every UI decision serves an intimate editorial experience — curated, not generic.
 
-## Commands
+## 2. Workflow
 
-| Command                 | What it does                        |
-| ----------------------- | ----------------------------------- |
-| `pnpm run dev`          | Dev server on `127.0.0.1:3000`      |
-| `pnpm run build`        | TypeScript check + production build |
-| `pnpm run lint`         | ESLint (core-web-vitals + TS rules) |
-| `pnpm run format:check` | Prettier check                      |
-| `pnpm run format`       | Prettier write                      |
+For any task in this repository:
 
-- `pnpm run build` includes typechecking — there is no separate `tsc` step.
-- No test suite exists in this repo.
+1. Read relevant files before proposing changes — never guess architecture
+2. Verify design system compliance — colors, fonts, radius, animations (see `docs/superpowers/memory/patterns.md`)
+3. Check consistency with similar existing components
+4. Validate TypeScript — run `pnpm run build` (includes typecheck)
+5. Describe what will change and why before applying
+6. Create a descriptive branch (`feat/`, `fix/`, `chore/`, `docs/`)
+7. Commit with Conventional Commits (commitlint enforced)
+8. Open a PR with clear title and description
+9. Wait for CI: format, lint, unit+coverage, build, E2E
+10. Never push directly to `main`
 
-## Architecture
+**Definition of done:** PR open with green CI pipeline.
 
-- **Next.js 16 App Router** (React 19), single app — no monorepo.
-- **BFF pattern**: external API secrets (Spotify, Mapbox) stay on the server. Route Handlers under `src/app/api/` proxy calls; never expose `SPOTIFY_CLIENT_SECRET` or `MAPBOX_TOKEN` to the client.
-- **Mapbox WebGL map** (`react-map-gl`) runs on the `/map` page. The app uses an overlay pattern — never unmount the map component during navigation; content overlays sit on top.
-- **Auth**: next-auth v5 (beta) with Spotify OAuth, plus a local PIN lock (`SECRET_PIN` env). `src/auth.ts` handles token refresh and auth URL normalization.
+## 3. Commands
 
-## Key directories
+| Command                  | What it does                        |
+| ------------------------ | ----------------------------------- |
+| `pnpm run dev`           | Dev server on `127.0.0.1:3000`      |
+| `pnpm run build`         | TypeScript check + production build |
+| `pnpm run lint`          | ESLint (core-web-vitals + TS rules) |
+| `pnpm run format:check`  | Prettier check                      |
+| `pnpm run format`        | Prettier write                      |
+| `pnpm run test`          | Vitest unit tests                   |
+| `pnpm run test:coverage` | Vitest with coverage thresholds     |
+| `pnpm run test:e2e`      | Playwright E2E                      |
+| `pnpm run generate`      | Sync Cloudinary → `memories.json`   |
 
-```
-src/
-├── app/            # App Router pages, API routes, server actions
-│   ├── api/auth/   # next-auth route handler
-│   ├── api/mapbox-token/  # BFF proxy — don't expose token client-side
-│   ├── api/spotify-token/ # BFF proxy — don't expose token client-side
-│   └── map/        # Mapbox WebGL page (preserve via overlay, never unmount)
-├── components/
-│   ├── features/   # Feature-grouped: auth, map, player, IntroScreen, overlay
-│   └── ui/         # Shared UI primitives (currently empty)
-├── hooks/          # Custom hooks + Zustand store (useAppStore)
-├── lib/            # Utilities (cn() for Tailwind class merging)
-├── services/       # External API integrations (Spotify, memory data, audio)
-├── types/          # Zod schemas + TS types (Memory, CurrentTrack, AppState)
-└── data/           # Static content: memories.json (Zod-validated at runtime)
-```
+- **pnpm 9** only — never npm or yarn. `pnpm-lock.yaml` is source of truth.
+- Dev server binds to `127.0.0.1` (not `localhost`) for Spotify OAuth.
 
-## Environment variables
+## 4. Visual Anti-Patterns — NEVER
 
-Copy `.env.example` → `.env.local`. Required vars:
+- Never use colors outside the design system palette
+- Never use light mode or white backgrounds
+- Never break full-width primary buttons
+- Never put technical jargon in UI copy (the user is Marina)
+- Never demote the hero photo — first image in `memory.images[]` is always dominant full-bleed
+- Never unmount `MapView` during navigation — overlay pattern only
+- Never expose `MAPBOX_TOKEN`, `SPOTIFY_CLIENT_SECRET`, or `CLOUDINARY_API_SECRET` to the client
+- Never use `any` in TypeScript
+- Never skip `alt` on images or `aria-label` on icon-only buttons
 
-- `SECRET_PIN` — local PIN lock
-- `AUTH_SECRET` — next-auth secret (`openssl rand -base64 32`)
-- `AUTH_URL` / `NEXTAUTH_URL` — canonical auth URL (e.g. `https://your-domain.vercel.app`)
-- `SPOTIFY_CLIENT_ID` / `SPOTIFY_CLIENT_SECRET` — Spotify OAuth credentials
-- `NEXT_PUBLIC_SPOTIFY_PLAYLIST_URI` — `spotify:playlist:…` (this one is public)
-- `MAPBOX_TOKEN` — Mapbox access token
+## 5. Do Not Change Without Asking
 
-Dev server binds to `127.0.0.1` (not localhost) so Spotify redirect URIs resolve correctly.
+- Color palette and CSS custom properties in `globals.css`
+- Memory data schema (`MemorySchema` / `ImageSchema` in `src/types/index.ts`)
+- PIN authentication flow (`LockScreen`, `validatePin` server action, rate limiting)
+- "Memory as Editorial" philosophy — hero photo dominant, editorial typography
+- Any UI copy directed at Marina (intro, PIN messages, memory descriptions)
+- Overlay pattern — never unmount the WebGL map
+- BFF pattern for API secrets
+- `lang="pt-BR"` on `<html>`
 
-## Style & conventions
+## 6. Memory Files (see `docs/superpowers/memory/`)
 
-- **Prettier**: single quotes, semicolons, trailing commas, 2-space indent.
-- **Conventional Commits** enforced by commitlint (husky `commit-msg` hook).
-- **lint-staged** runs Prettier + ESLint on staged JS/TS files on pre-commit.
-- Tailwind classes are merged with the `cn()` helper from `@/lib/utils`.
-- Fonts: Inter (body) + Playfair Display (headings), loaded via `next/font/google`. `lang="pt-BR"` on `<html>`.
-- All state mutations require `'use client'`; data fetching happens on the server where possible.
+Always read on session start. Do not duplicate this content in conversation — reference the files.
 
-## Content updates
+| File              | Contents                                                                                                   |
+| ----------------- | ---------------------------------------------------------------------------------------------------------- |
+| `architecture.md` | Stack, versions, commands, directory structure, data flow, key decisions, env vars                         |
+| `decisions.md`    | ADR-style decision log                                                                                     |
+| `patterns.md`     | Design system (colors, typography, radius, animations), quality conventions, code style, copy tone, naming |
+| `known-issues.md` | Known issues and workarounds                                                                               |
 
-Memory data lives in `src/data/memories.json` and is validated against the Zod `MemorySchema` in `src/types/index.ts`. Update both the JSON and images (Cloudinary URLs) as needed. Each memory entry needs: id, title, date (YYYY-MM-DD), coordinates (`{lat, lng}`), isSpecialPin, description, and an images array.
+## 7. Superpowers + ECC — Orchestration
 
-## opencode.json permissions
+This project uses **Superpowers** (methodological backbone) and **ECC** (specialized subagents on demand).
 
-Both `edit` and `bash` are set to `"ask"` — the agent must request approval before modifying files or running shell commands.
+### Orchestration
 
-## Superpowers + ECC — Orquestração
+- **Lifecycle flow:** Superpowers skills (brainstorming → spec → plan → TDD → review)
+- **ECC subagents:** use on demand when the task requires extra depth
+- **Conflict:** if both offer the same skill, Superpowers commands WHEN/HOW; ECC provides WHAT
 
-Este projeto usa **Superpowers** como espinha dorsal metodológica e **ECC** para especialização sob demanda.
+### Available ECC Subagents
 
-### Regras de Orquestração
+| Skill                | When                                                                                  |
+| -------------------- | ------------------------------------------------------------------------------------- |
+| `ecc-security-audit` | Features with auth, APIs, sensitive data                                              |
+| `ecc-deep-review`    | Deep review (security, performance, edge cases); complements `requesting-code-review` |
+| `ecc-debug`          | Advanced debugging when `systematic-debugging` didn't resolve                         |
 
-- **Fluxo de vida**: sempre seguir skills do Superpowers (brainstorming -> spec -> plano -> TDD -> review)
-- **Subagentes ECC**: usar sob demanda quando a tarefa pedir profundidade extra ou especialização
-- **Conflito**: se Superpowers e ECC oferecem a mesma skill, Superpowers comanda QUANDO e COMO; ECC fornece O QUÊ
+### Persistent Memory
 
-### Subagentes ECC disponíveis
+On session start: read `docs/superpowers/memory/architecture.md` and `docs/superpowers/memory/decisions.md`.
+After feature completion: ask to update memory files. Never remove — only add or mark resolved with ~~strikethrough~~.
 
-| Skill                | Quando usar                                                                                |
-| -------------------- | ------------------------------------------------------------------------------------------ |
-| `ecc-security-audit` | Features com auth, APIs, dados sensíveis. Após implementação, antes de merge.              |
-| `ecc-deep-review`    | Review profundo (security, performance, edge cases). Complementa `requesting-code-review`. |
-| `ecc-debug`          | Debug avançado quando `systematic-debugging` não resolveu. Bugs multi-sistema.             |
+### Context7
 
-### Memória Persistente
+Primary channel for library docs. ECC does NOT replace Context7 for doc lookups.
 
-Ao iniciar sessão, ler `docs/superpowers/memory/`:
+## 8. Permissions
 
-- `architecture.md` — Decisões arquiteturais, stack, dependências
-- `decisions.md` — Registro de decisões (ADR-style)
-- `patterns.md` — Padrões e convenções
-- `known-issues.md` — Issues conhecidas e workarounds
-
-Ao completar feature significativa, perguntar se deve atualizar os arquivos de memória.
-NUNCA remover informações — apenas adicionar ou marcar como resolvido com ~~strikethrough~~.
-
-### Context7 + Docs
-
-Context7 continua como canal primário para documentação de bibliotecas. ECC skills NÃO substituem Context7 para lookup de docs.
+Both `edit` and `bash` are set to `"ask"` — request approval before modifying files or running commands.

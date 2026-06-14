@@ -1,6 +1,24 @@
-# Architecture
+# Arquitetura
 
-Este documento descreve a arquitetura atual do Our Journey e os guardrails para evoluir o projeto sem quebrar suas decisões centrais. O `docs/HLD.md` continua sendo a visão de alto nível; este arquivo é o guia operacional para entender onde cada coisa vive, como os fluxos passam pelo sistema e quais limites devem ser preservados.
+> Guia operacional: onde cada coisa vive, como os fluxos passam pelo sistema, quais guardrails preservar.
+
+## Índice
+
+- [Objetivos Arquiteturais](#objetivos-arquiteturais)
+- [Stack](#stack)
+- [Visão Geral](#visão-geral)
+- [Diretórios e Responsabilidades](#diretórios-e-responsabilidades)
+- [Fluxos Principais](#fluxos-principais)
+- [BFF e Segredos](#bff-e-segredos)
+- [Estado Global](#estado-global)
+- [Client vs Server](#client-vs-server)
+- [Configuração](#configuração)
+- [Resiliência Atual](#resiliência-atual)
+- [Observabilidade](#observabilidade)
+- [Qualidade e Verificação](#qualidade-e-verificação)
+- [Estratégia de Testes](#estratégia-de-testes)
+- [Roadmap e Backlog](#roadmap-e-backlog)
+- [Checklist Para Novas Features](#checklist-para-novas-features)
 
 ## Objetivos Arquiteturais
 
@@ -27,27 +45,42 @@ Este documento descreve a arquitetura atual do Our Journey e os guardrails para 
 O projeto é um monolito Next.js com padrão BFF. O mesmo app entrega a UI, server actions e route handlers que protegem credenciais de terceiros.
 
 ```mermaid
-flowchart LR
-  Browser["Browser / React UI"]
-  AppRouter["Next.js App Router"]
-  Routes["Route Handlers / BFF"]
-  Auth["NextAuth Spotify OAuth"]
-  Store["Zustand Store"]
-  Data["memories.json + Zod"]
-  Mapbox["Mapbox"]
-  Spotify["Spotify APIs / SDK"]
-  Cloudinary["Cloudinary CDN"]
+flowchart TB
+  Browser["Browser"]
+  NextApp["Next.js 16 App Router"]
+  ServerPage["Server page: src/app/page.tsx"]
+  ClientFeatures["Client features: LockScreen, MapPage, TimelinePage, Overlay, Player"]
+  Zustand["Zustand store: useAppStore"]
+  ServerActions["Server action: validatePin"]
+  RouteMapbox["GET /api/mapbox-token"]
+  RouteSpotify["GET /api/spotify-token"]
+  NextAuth["NextAuth v5 Spotify provider"]
+  MemoryService["memoryService + Zod validation"]
+  MemoriesJson["src/data/memories.json"]
+  Mapbox["Mapbox GL / styles / tiles"]
+  Spotify["Spotify OAuth, Web API and Web Playback SDK"]
+  Cloudinary["Cloudinary CDN via next-cloudinary"]
+  Env["Server env validation: src/lib/env.ts"]
 
-  Browser --> AppRouter
-  Browser --> Store
-  AppRouter --> Auth
-  AppRouter --> Data
-  Browser --> Routes
-  Routes --> Mapbox
-  Routes --> Auth
-  Auth --> Spotify
-  Browser --> Spotify
-  Browser --> Cloudinary
+  Browser --> NextApp
+  NextApp --> ServerPage
+  ServerPage --> NextAuth
+  NextApp --> ClientFeatures
+  ClientFeatures <--> Zustand
+  ClientFeatures --> ServerActions
+  ServerActions --> Env
+  ClientFeatures --> RouteMapbox
+  ClientFeatures --> RouteSpotify
+  RouteMapbox --> Env
+  RouteMapbox --> Mapbox
+  RouteSpotify --> NextAuth
+  NextAuth --> Spotify
+  ClientFeatures --> MemoryService
+  MemoryService --> MemoriesJson
+  MemoryService --> ClientFeatures
+  ClientFeatures --> Mapbox
+  ClientFeatures --> Spotify
+  ClientFeatures --> Cloudinary
 ```
 
 ## Diretórios e Responsabilidades
@@ -133,6 +166,41 @@ Guardrails:
 - Chamadas com access token devem passar por `/api/spotify-token` quando dependerem da sessão.
 
 ### Dados de Memórias
+
+```mermaid
+erDiagram
+  MEMORY ||--o{ IMAGE : contains
+
+  MEMORY {
+    string id
+    string title
+    string date "YYYY-MM-DD"
+    float coordinates_lat
+    float coordinates_lng
+    boolean isSpecialPin
+    string description
+  }
+
+  IMAGE {
+    string publicId
+    string alt
+    int width
+    int height
+  }
+
+  MEMORY_SOURCE {
+    string id
+    string title
+    string date
+    float coordinates_lat
+    float coordinates_lng
+    boolean isSpecialPin
+    string description
+    string cloudinaryFolder
+  }
+
+  MEMORY_SOURCE ||--o{ MEMORY : generates
+```
 
 `src/data/memories.json` é a fonte de verdade consumida pela aplicação. `memoryService.getMemories()` importa o JSON e valida a lista com `MemorySchema`.
 
@@ -242,8 +310,7 @@ Lacunas conhecidas:
 
 - falta timeout padronizado para chamadas externas;
 - logs ainda são ad hoc com `console`;
-- route handlers ainda não usam envelope de erro padronizado;
-- não há testes automatizados para contratos críticos.
+- route handlers ainda não usam envelope de erro padronizado.
 
 ## Observabilidade
 
@@ -274,99 +341,37 @@ Guardrails:
 
 - Usar sempre pnpm.
 - Rodar `pnpm run build` antes de entregar mudanças que alterem tipos, rotas, dados ou build config.
-- Rodar `pnpm run lint` e `pnpm run format:check` antes de abrir PR.
-- Como não há suíte de testes, mudanças em contratos críticos devem ser verificadas por build e revisão manual direcionada.
+- Rodar `pnpm run test` e `pnpm run test:coverage` para validar contratos e lógica.
+- Ver `docs/ENGINEERING.md` para o fluxo completo de trabalho.
 
 ## Estratégia de Testes
 
-O projeto ainda não possui suíte automatizada. A meta é adicionar testes de forma incremental, cobrindo primeiro os pontos que protegem arquitetura, segredos e experiência principal, sem criar manutenção desproporcional para um projeto de portfólio.
+O projeto possui suíte automatizada com Vitest (unitário) e Playwright (E2E). Ver `docs/superpowers/memory/patterns.md` para convenções detalhadas de teste.
 
-### Pirâmide Desejada
+### Suite Atual
 
-| Camada          | Ferramenta proposta            | Papel                                                                                     |
-| --------------- | ------------------------------ | ----------------------------------------------------------------------------------------- |
-| Unitários       | Vitest + React Testing Library | Validar schemas, helpers, services puros, hooks isoláveis e componentes com lógica local. |
-| Integração leve | Vitest / Route Handler tests   | Validar BFF, env, contratos HTTP e tratamento de erros sem browser real.                  |
-| E2E             | Playwright                     | Validar jornadas críticas reais: PIN, mapa, overlay, fallback e responsividade.           |
+| Camada    | Ferramenta                     | Cobertura                                     |
+| --------- | ------------------------------ | --------------------------------------------- |
+| Unitários | Vitest + React Testing Library | Schemas, env, route handlers, hooks, services |
+| E2E       | Playwright                     | PIN flow, mapa mockado, timeline, mobile      |
 
-### Plano Unitário
+Comandos:
 
-Prioridade 1:
-
-- `MemorySchema` e `ImageSchema` aceitam dados válidos e rejeitam formatos inválidos.
-- `memoryService.getMemories()` retorna lista validada e falha de forma controlada.
-- validação centralizada de env separa contratos server e public.
-- helpers puros, como `cn()`, continuam previsíveis.
-
-Prioridade 2:
-
-- stores e hooks com lógica própria, especialmente transições do `useAppStore`.
-- route handlers `/api/mapbox-token` e `/api/spotify-token`, cobrindo sucesso, ausência de env e ausência de sessão.
-- `refreshAccessToken` deve ser extraído para função testável antes de receber testes diretos.
-
-Prioridade 3:
-
-- componentes pequenos com decisão de UI, como fallback de mapa, estados do player e lock screen.
-- fluxo de fallback do áudio por contrato de serviço, com Spotify mockado.
+```bash
+pnpm run test           # Vitest unit tests
+pnpm run test:coverage  # Vitest with coverage (thresholds enforced)
+pnpm run test:e2e       # Playwright E2E
+```
 
 Guardrails:
 
 - Testes unitários não devem chamar Spotify, Mapbox ou Cloudinary reais.
-- Preferir fixtures pequenas e explícitas em vez de reaproveitar todo `memories.json`.
-- Não testar detalhes internos de animação do Framer Motion.
+- Preferir fixtures pequenas e explícitas.
 - Não tornar componentes server/client mais acoplados só para facilitar teste.
 
-### Plano E2E com Playwright
+## Roadmap e Backlog
 
-Cenários iniciais:
-
-- Home renderiza o fluxo correto quando não há sessão Spotify.
-- PIN inválido não libera o mapa.
-- PIN válido libera a navegação para `/map`.
-- `/map` exibe fallback quando WebGL ou token Mapbox falha.
-- Com Mapbox mockado, o usuário consegue abrir uma memória e fechar o overlay.
-- Em viewport mobile, o overlay não cobre controles essenciais de forma quebrada.
-- Falha do Spotify não bloqueia o mapa e ativa caminho de fallback visual/funcional.
-
-Estratégia de mocks:
-
-- Mockar `/api/mapbox-token` em testes E2E para evitar depender de token real.
-- Interceptar scripts/APIs do Spotify quando a jornada não estiver validando OAuth real.
-- Usar fixtures de memórias pequenas quando possível.
-- Reservar qualquer teste com integração real para smoke manual ou ambiente separado.
-
-Comandos futuros recomendados:
-
-```bash
-pnpm run test
-pnpm run test:e2e
-pnpm run test:e2e:ui
-```
-
-Critério de entrada no CI:
-
-- Começar com unitários de contrato e um smoke E2E feliz.
-- Depois exigir `pnpm run test` em toda PR.
-- Tornar `pnpm run test:e2e` obrigatório apenas quando estiver estável em ambiente local/CI.
-
-## Evolução Recomendada
-
-Prioridade alta:
-
-- Padronizar respostas e erros dos route handlers.
-- Adicionar timeout e tratamento uniforme para chamadas externas.
-- Criar base de testes unitários para schemas, env e route handlers críticos.
-
-Prioridade média:
-
-- Criar script dedicado para validar `memories.json`.
-- Adicionar Playwright com smoke E2E de PIN, mapa mockado e overlay.
-- Formalizar checklist de PR em `docs/ENGINEERING.md` ou `docs/CONTRIBUTING.md`.
-
-Prioridade baixa:
-
-- Avaliar observabilidade externa, como Sentry, apenas se o projeto for publicado e acessado por terceiros.
-- Criar ADRs para decisões que mudem fronteiras arquiteturais, como CMS, nova camada de dados ou novo provedor de áudio.
+Ver [ROADMAP.md](ROADMAP.md) para as próximas fases e [BACKLOG.md](BACKLOG.md) para itens não agendados.
 
 ## Checklist Para Novas Features
 
@@ -378,3 +383,7 @@ Antes de implementar:
 - Existe contrato de dados novo? Se sim, criar schema Zod.
 - Existe caminho de falha externo? Se sim, definir fallback visual ou funcional.
 - A mudança afeta auth, PIN, mapa ou player? Se sim, rodar build e fazer smoke test manual.
+
+---
+
+> **Para IA:** `docs/superpowers/memory/architecture.md` contém um resumo enxuto em inglês da stack, comandos, diretórios e decisões arquiteturais para agentes de IA.
