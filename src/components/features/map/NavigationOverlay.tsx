@@ -3,6 +3,7 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { motion } from 'framer-motion';
 import type { Memory } from '@/types';
+import { getPrevIndex, getNextIndex } from '@/lib/navigation-utils';
 
 interface NavigationOverlayProps {
   memories: Memory[];
@@ -23,14 +24,12 @@ export function NavigationOverlay({
   const currentMemory = currentIndex >= 0 ? memories[currentIndex] : null;
 
   const handlePrev = () => {
-    const prevIndex =
-      currentIndex === 0 ? memories.length - 1 : currentIndex - 1;
+    const prevIndex = getPrevIndex(currentIndex, memories.length);
     onNavigate(memories[prevIndex].id);
   };
 
   const handleNext = () => {
-    const nextIndex =
-      currentIndex === memories.length - 1 ? 0 : currentIndex + 1;
+    const nextIndex = getNextIndex(currentIndex, memories.length);
     onNavigate(memories[nextIndex].id);
   };
 
