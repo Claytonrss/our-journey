@@ -8,7 +8,12 @@ import { useAppStore } from '@/hooks/useAppStore';
 import { validatePin } from '@/app/actions/auth';
 import { CompassRose } from '@/components/ui/CompassRose';
 import Map from 'react-map-gl/mapbox';
-import { getPinErrorMessage, PIN_PATTERNS } from '@/lib/pin-validation';
+import {
+  getPinErrorMessage,
+  isPinValid,
+  buildPinFromDigits,
+  PIN_PATTERNS,
+} from '@/lib/pin-validation';
 
 interface LockScreenProps {
   hasSession: boolean;
@@ -56,7 +61,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
 
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (pin.length !== 4) return;
+    if (!isPinValid(pin)) return;
 
     startTransition(async () => {
       const isValid = await validatePin(pin);
@@ -86,9 +91,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
       setErrorMessage('');
     }
 
-    const newPin = pin.split('');
-    newPin[index] = value;
-    const updated = newPin.join('').slice(0, 4);
+    const updated = buildPinFromDigits(pin, index, value);
     setPin(updated);
 
     if (value && index < 3) {
@@ -372,7 +375,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
                 )}
                 <button
                   type="submit"
-                  disabled={pin.length !== 4 || isPending}
+                  disabled={!isPinValid(pin) || isPending}
                   className="btn-primary"
                 >
                   {isPending ? 'Validando...' : 'Entrar'}
