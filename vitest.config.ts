@@ -26,6 +26,8 @@ export default defineConfig({
         'src/app/map/page.tsx',
         'src/app/timeline/page.tsx',
         'src/app/api/auth/**',
+        // Sentry integration (runtime instrumentation, not unit-testable)
+        'src/app/global-error.tsx',
         // UI Components (not in plan scope — cover via integration/e2e)
         'src/components/Providers.tsx',
         'src/components/GlobalAudio.tsx',
