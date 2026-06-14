@@ -1,4 +1,4 @@
-# Issues Conhecidas — Our Journey
+# Known Issues — Our Journey
 
 ## Vitest < 3.2.6 — CRITICAL (Resolvido)
 
@@ -64,4 +64,4 @@
 - **Status**: aguardando resolução upstream
 - **Mitigação**: ambiente de dev local; CI usa `--frozen-lockfile`
 
-(Atualizado em 2026-06-14 — preencher ao longo das sessões)
+(Updated 2026-06-14 — fill in as sessions progress)

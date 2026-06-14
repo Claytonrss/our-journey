@@ -1,4 +1,25 @@
-# **PRD: Projeto Dia dos Namorados (Codinome: Our Journey)**
+# PRD: Our Journey
+
+> **Status:** Documento histórico/visão (2026-05-24). As features descritas nos épicos foram majoritariamente implementadas, com ajustes de arquitetura ao longo do caminho. Para o estado atual, consulte `docs/ARCHITECTURE.md` e `docs/ROADMAP.md`.
+
+## Estado Implementado vs Especificado
+
+| Feature                              | Status       | Observação                                     |
+| ------------------------------------ | ------------ | ---------------------------------------------- |
+| Autenticação Spotify (OAuth)         | Implementado | NextAuth v5 beta com refresh token             |
+| Lock Screen (PIN)                    | Implementado | Server action com rate limiting                |
+| Mapa interativo com fly-to           | Implementado | Mapbox GL via react-map-gl, 38 memórias        |
+| Modo História + Modo Livre           | Implementado | Overlays com navegação cronológica             |
+| Galeria Masonry + Lightbox           | Implementado | Framer Motion drag gestures                    |
+| Player Spotify                       | Parcial      | Dual-mode: HTML5 fallback + Spotify SDK        |
+| Pins Especiais                       | Implementado | `isSpecialPin` com destaque dourado (◆)        |
+| Schema Zod                           | Implementado | `MemorySchema` + `ImageSchema` em `src/types/` |
+| Cloudinary CDN                       | Implementado | `next-cloudinary` com `publicId`, transforms   |
+| Dark Mode elegante                   | Implementado | `--bg-void` #080808, paleta dourada            |
+| CI/CD com GitHub Actions             | Implementado | Format, lint, unit, coverage, build, E2E       |
+| Sentry                               | Parcial      | Pacote instalado; config de env pendente       |
+| JSON wrapper `{ "memories": [...] }` | Substituído  | Array raiz `Memory[]` — simplificado           |
+| `NEXT_PUBLIC_MAPBOX_TOKEN`           | Substituído  | BFF pattern: `/api/mapbox-token`               |
 
 ## **1. Visão Geral**
 

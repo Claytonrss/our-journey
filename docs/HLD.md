@@ -1,10 +1,24 @@
-# HLD: Our Journey (Projeto Dia dos Namorados)
+# HLD: Our Journey
 
-**Versão:** 1.0
+> **Status:** Documento histórico/visão (2026-05-24). Parte das decisões aqui descritas já foi implementada; outras foram ajustadas. Para o estado atual da arquitetura, consulte `docs/ARCHITECTURE.md`.
 
-**Data:** 2026-05-24
+## Estado Implementado vs Especificado
 
-**Responsável:** Clayton Rafael dos Santos Souza
+| Item no HLD                          | Status           | Observação                                              |
+| ------------------------------------ | ---------------- | ------------------------------------------------------- |
+| BFF via Route Handlers               | Implementado     | `src/app/api/mapbox-token`, `src/app/api/spotify-token` |
+| Overlay pattern (não desmontar mapa) | Implementado     | `reuseMaps`, overlays sobre `MapView`                   |
+| NextAuth Spotify OAuth               | Implementado     | `src/auth.ts` com refresh token rotation                |
+| Zustand para estado global           | Implementado     | Substituiu Context API original                         |
+| Lock Screen com PIN                  | Implementado     | Server action `validatePin()` com rate limiting         |
+| Mapbox GL via react-map-gl           | Implementado     | Estilo `dark-v11`, fly-to customizado                   |
+| Cloudinary via next-cloudinary       | Implementado     | `CldImage` com `publicId`, transforms on-the-fly        |
+| Framer Motion para animações         | Implementado     | Overlays, lightbox, intro, parallax                     |
+| Sentry integrado                     | Parcial          | Pacote instalado; configuração de env pendente          |
+| Vercel Speed Insights                | Não implementado | Substituído por Vitest/Playwright para qualidade        |
+| CMS headless (futuro)                | Não implementado | Mantido JSON versionado — decisão documentada           |
+| `NEXT_PUBLIC_MAPBOX_TOKEN`           | Substituído      | Token agora é servido via BFF (`/api/mapbox-token`)     |
+| Épico 0 (Setup/CI/CD)                | Implementado     | Husky, commitlint, lint-staged, CI GitHub Actions       |
 
 ## Objetivo técnico
 
