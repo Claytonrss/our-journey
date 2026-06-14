@@ -65,7 +65,7 @@ describe('sortMemoriesByDate()', () => {
     expect(sorted.map((m) => m.id)).toEqual(['1', '2', '3']);
   });
 
-  it('sorts same-date memories in stable order', () => {
+  it('preserves original order for same-date memories (stable sort)', () => {
     const memories: Memory[] = [
       makeMemory('b', '2022-01-01'),
       makeMemory('a', '2022-01-01'),
@@ -73,8 +73,8 @@ describe('sortMemoriesByDate()', () => {
 
     const sorted = sortMemoriesByDate(memories);
 
-    expect(sorted[0].date).toBe('2022-01-01');
-    expect(sorted[1].date).toBe('2022-01-01');
+    expect(sorted[0].id).toBe('b');
+    expect(sorted[1].id).toBe('a');
   });
 });
 
