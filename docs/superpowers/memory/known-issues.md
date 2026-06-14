@@ -2,7 +2,9 @@
 
 ## Vitest < 3.2.6 — CRITICAL (Resolvido)
 
-- ```CRITICAL: arbitrary file read/execute via Vitest UI server (GHSA-5xrq-8626-4rwp)~~~
+- ~~CRITICAL: arbitrary file read/execute via Vitest UI server (GHSA-5xrq-8626-4rwp)~~
+
+  ```
 
   ```
 
@@ -10,7 +12,9 @@
 
 ## esbuild < 0.28.1 — HIGH (Resolvido)
 
-- ```HIGH: integridade de binário comprometida~~~
+- ~~HIGH: integridade de binário comprometida~~
+
+  ```
 
   ```
 
@@ -18,7 +22,9 @@
 
 ## PIN sem rate limiting — HIGH (Resolvido)
 
-- ```4-digit PIN pode ser brute-forced em segundos~~~
+- ~~4-digit PIN pode ser brute-forced em segundos~~
+
+  ```
 
   ```
 
@@ -30,7 +36,7 @@
 - **Status**: requer restrição no painel Mapbox por URL + headers `Cache-Control`
 - **Plano**: `2026-06-13-practical-improvements.md`
 
-## Estato do PIN em memória — LOW
+## Estado do PIN em memória — LOW
 
 - `isPinValidated` vive apenas no Zustand (memória). Reload em `/map` perde acesso.
 - **Status**: comportamento intencional por enquanto; avaliar persistência segura se necessário
@@ -38,7 +44,9 @@
 
 ## PostCSS em versão vulnerável — MODERATE
 
-- ```postcss < 8.5.10, XSS em stringify CSS (via Next.js)~~~
+- postcss < 8.5.10, XSS em stringify CSS (via Next.js)
+
+  ```
 
   ```
 
@@ -47,7 +55,9 @@
 
 ## PNPM audit — vulnerabilidades moderadas
 
-- ```Vite <= 6.4.1 path traversal em optimized deps sourcemaps~~~
+- Vite <= 6.4.1 path traversal em optimized deps sourcemaps
+
+  ```
 
   ```
 

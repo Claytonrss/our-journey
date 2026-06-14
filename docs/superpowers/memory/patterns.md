@@ -25,7 +25,7 @@ src/
 │   ├── features/   # Feature-grouped: auth, map, player, IntroScreen, overlay
 │   └── ui/         # Shared UI primitives
 ├── hooks/          # Custom hooks + Zustand store
-├── lib/            # Utilities (cn(), env, logger, publicEnv)
+├── lib/            # Utilities (cn(), env, memory-grouping, navigation-utils, pin-validation, publicEnv)
 ├── services/       # External API integrations (Spotify, memory, audio)
 ├── types/          # Zod schemas + TS types
 └── data/           # Static content: memories.json
