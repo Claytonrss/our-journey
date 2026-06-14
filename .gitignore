@@ -45,3 +45,9 @@ certificates
 
 # local memory images
 /public/images/memories/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
