@@ -28,7 +28,7 @@ export default defineConfig({
         'src/app/api/auth/**',
         // Sentry integration (runtime instrumentation, not unit-testable)
         'src/app/global-error.tsx',
-        // UI Components (not in plan scope — cover via integration/e2e)
+        // UI Components (require browser APIs, WebGL, Mapbox, or E2E coverage)
         'src/components/Providers.tsx',
         'src/components/GlobalAudio.tsx',
         'src/components/ui/ViewToggle.tsx',
@@ -42,9 +42,6 @@ export default defineConfig({
         'src/components/features/overlay/**',
         'src/components/features/player/**',
         'src/components/features/timeline/**',
-        // Hooks not covered in this phase
-        'src/hooks/useMapFlyTo.ts',
-        'src/hooks/useWebGLSupport.ts',
       ],
       thresholds: {
         lines: 75,
