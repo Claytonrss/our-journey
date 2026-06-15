@@ -64,22 +64,32 @@ export function LockScreen({ hasSession }: LockScreenProps) {
     if (!isPinValid(pin)) return;
 
     startTransition(async () => {
-      const isValid = await validatePin(pin);
-      if (isValid) {
-        localStorage.setItem(STORAGE_KEY, audioMode);
-        setPinValidated(true);
-        setUseLocalAudio(audioMode === 'local');
-        setIsUnlocking(true);
-        setTimeout(() => {
-          router.push('/map');
-        }, 800);
-      } else {
+      try {
+        const isValid = await validatePin(pin);
+        if (isValid) {
+          localStorage.setItem(STORAGE_KEY, audioMode);
+          setPinValidated(true);
+          setUseLocalAudio(audioMode === 'local');
+          setIsUnlocking(true);
+          setTimeout(() => {
+            router.push('/map');
+          }, 800);
+        } else {
+          setIsError(true);
+          setErrorMessage(getPinErrorMessage(pin, PIN_PATTERNS));
+          setPin('');
+          setTimeout(() => {
+            inputRefs.current[0]?.focus();
+          }, 0);
+        }
+      } catch (error) {
         setIsError(true);
-        setErrorMessage(getPinErrorMessage(pin, PIN_PATTERNS));
+        setErrorMessage(
+          error instanceof Error
+            ? error.message
+            : 'Muitas tentativas. Tente novamente em alguns segundos.',
+        );
         setPin('');
-        setTimeout(() => {
-          inputRefs.current[0]?.focus();
-        }, 0);
       }
     });
   };

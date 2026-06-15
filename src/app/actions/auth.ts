@@ -3,9 +3,9 @@
 import { headers } from 'next/headers';
 import { getPinEnv } from '@/lib/env';
 
-// Rate limiting: max 5 attempts per 60 seconds per IP
+// Rate limiting: max 10 attempts per 60 seconds per IP
 // In-memory store (resets on server restart, suitable for single-instance or low-traffic)
-const RATE_LIMIT_MAX_ATTEMPTS = 5;
+const RATE_LIMIT_MAX_ATTEMPTS = 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
 const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
