@@ -49,6 +49,9 @@ test.describe('Lightbox Keyboard Navigation', () => {
 
     await page.keyboard.press('ArrowRight');
 
+    const counter = page.locator('[aria-live="polite"]');
+    await expect(counter).toContainText('2 /', { timeout: 5000 });
+
     await page.keyboard.press('Escape');
     await expect(closeBtn).not.toBeVisible({ timeout: 5000 });
   });
