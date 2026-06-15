@@ -1,11 +1,13 @@
 'use server';
 
+import { headers } from 'next/headers';
 import { getPinEnv } from '@/lib/env';
 
 // Rate limiting: max 5 attempts per 60 seconds per IP
 // In-memory store (resets on server restart, suitable for single-instance or low-traffic)
 const RATE_LIMIT_MAX_ATTEMPTS = 5;
 const RATE_LIMIT_WINDOW_MS = 60_000;
+const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface RateLimitEntry {
   attempts: number;
@@ -15,21 +17,31 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-function getClientIdentifier(): string {
-  // In production, use a more robust identifier (e.g., IP from headers)
-  // For server actions, we use a simple hash of the current time window
-  // This is a basic implementation; for production, consider Redis or a persistent store
+// Cleanup expired entries periodically to prevent memory leak
+setInterval(() => {
   const now = Date.now();
-  const window = Math.floor(now / RATE_LIMIT_WINDOW_MS);
-  return `pin-attempt-${window}`;
+  for (const [key, entry] of rateLimitStore) {
+    if (now - entry.firstAttempt > RATE_LIMIT_WINDOW_MS * 2) {
+      rateLimitStore.delete(key);
+    }
+  }
+}, CLEANUP_INTERVAL_MS);
+
+async function getClientIdentifier(): Promise<string> {
+  const h = await headers();
+  const ip =
+    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+    h.get('x-real-ip') ||
+    'unknown';
+  return `pin:${ip}`;
 }
 
-function checkRateLimit(): {
+async function checkRateLimit(): Promise<{
   allowed: boolean;
   remaining: number;
   lockedUntil?: number;
-} {
-  const key = getClientIdentifier();
+}> {
+  const key = await getClientIdentifier();
   const now = Date.now();
   const entry = rateLimitStore.get(key);
 
@@ -59,8 +71,8 @@ function checkRateLimit(): {
   };
 }
 
-function recordAttempt(): void {
-  const key = getClientIdentifier();
+async function recordAttempt(): Promise<void> {
+  const key = await getClientIdentifier();
   const now = Date.now();
   const entry = rateLimitStore.get(key);
 
@@ -72,7 +84,7 @@ function recordAttempt(): void {
 }
 
 export async function validatePin(pin: string): Promise<boolean> {
-  const rateLimit = checkRateLimit();
+  const rateLimit = await checkRateLimit();
 
   if (!rateLimit.allowed) {
     const remainingSeconds = Math.ceil(
@@ -87,7 +99,7 @@ export async function validatePin(pin: string): Promise<boolean> {
 
   // Prevenção de timing attacks simples (usando delay constante ou length check)
   if (pin.length !== 4) {
-    recordAttempt();
+    await recordAttempt();
     return false;
   }
 
@@ -96,7 +108,7 @@ export async function validatePin(pin: string): Promise<boolean> {
   const isValid = pin === SECRET_PIN;
 
   if (!isValid) {
-    recordAttempt();
+    await recordAttempt();
   }
 
   return isValid;

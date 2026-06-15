@@ -4,6 +4,15 @@ vi.mock('@/lib/env', () => ({
   getPinEnv: () => ({ SECRET_PIN: '1917' }),
 }));
 
+vi.mock('next/headers', () => ({
+  headers: () =>
+    Promise.resolve(
+      new Headers({
+        'x-forwarded-for': '127.0.0.1',
+      }),
+    ),
+}));
+
 describe('validatePin', () => {
   let validatePin: (pin: string) => Promise<boolean>;
 
