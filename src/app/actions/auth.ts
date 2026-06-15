@@ -83,16 +83,20 @@ async function recordAttempt(): Promise<void> {
   }
 }
 
-export async function validatePin(pin: string): Promise<boolean> {
+export async function validatePin(pin: string): Promise<{
+  success: boolean;
+  error?: string;
+}> {
   const rateLimit = await checkRateLimit();
 
   if (!rateLimit.allowed) {
     const remainingSeconds = Math.ceil(
       (rateLimit.lockedUntil! - Date.now()) / 1000,
     );
-    throw new Error(
-      `Muitas tentativas. Tente novamente em ${remainingSeconds} segundos.`,
-    );
+    return {
+      success: false,
+      error: `Muitas tentativas. Tente novamente em ${remainingSeconds} segundos.`,
+    };
   }
 
   const { SECRET_PIN } = getPinEnv();
@@ -100,7 +104,7 @@ export async function validatePin(pin: string): Promise<boolean> {
   // Prevenção de timing attacks simples (usando delay constante ou length check)
   if (pin.length !== 4) {
     await recordAttempt();
-    return false;
+    return { success: false };
   }
 
   // Em produção real, uma string comparison normal pode sofrer timing attacks.
@@ -111,5 +115,5 @@ export async function validatePin(pin: string): Promise<boolean> {
     await recordAttempt();
   }
 
-  return isValid;
+  return { success: isValid };
 }
