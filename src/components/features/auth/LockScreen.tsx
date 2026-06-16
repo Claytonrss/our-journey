@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { signIn } from 'next-auth/react';
@@ -39,8 +39,9 @@ export function LockScreen({ hasSession }: LockScreenProps) {
   });
 
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
 
   const { setPinValidated, setUseLocalAudio } = useAppStore();
 
@@ -55,33 +56,63 @@ export function LockScreen({ hasSession }: LockScreenProps) {
 
   useEffect(() => {
     if (showPin && inputRefs.current[0]) {
-      inputRefs.current[0].focus();
+      inputRefs.current[0]?.focus();
     }
   }, [showPin]);
 
+  // Cleanup pending state on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
   const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isPinValid(pin)) return;
+    if (!isPinValid(pin) || isPending) return;
 
-    startTransition(async () => {
-      const isValid = await validatePin(pin);
-      if (isValid) {
-        localStorage.setItem(STORAGE_KEY, audioMode);
-        setPinValidated(true);
-        setUseLocalAudio(audioMode === 'local');
-        setIsUnlocking(true);
-        setTimeout(() => {
-          router.push('/map');
-        }, 800);
-      } else {
-        setIsError(true);
-        setErrorMessage(getPinErrorMessage(pin, PIN_PATTERNS));
-        setPin('');
-        setTimeout(() => {
-          inputRefs.current[0]?.focus();
-        }, 0);
-      }
-    });
+    // Cancel any previous in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setIsPending(true);
+    validatePin(pin)
+      .then((result) => {
+        if (controller.signal.aborted) return;
+        if (result.success) {
+          localStorage.setItem(STORAGE_KEY, audioMode);
+          setPinValidated(true);
+          setUseLocalAudio(audioMode === 'local');
+          setIsUnlocking(true);
+          setTimeout(() => {
+            router.push('/map');
+          }, 800);
+        } else {
+          setIsError(true);
+          setErrorMessage(
+            result.error ?? getPinErrorMessage(pin, PIN_PATTERNS),
+          );
+          setPin('');
+          setTimeout(() => {
+            inputRefs.current[0]?.focus();
+          }, 0);
+        }
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        // Only show error if it's not an abort
+        if (err?.name !== 'AbortError') {
+          setIsError(true);
+          setErrorMessage('Algo deu errado. Tente novamente.');
+          setPin('');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsPending(false);
+        }
+      });
   };
 
   const handleDigitChange = (index: number, value: string) => {
