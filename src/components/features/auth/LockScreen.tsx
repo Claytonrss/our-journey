@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useTransition, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { signIn } from 'next-auth/react';
@@ -39,7 +39,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
   });
 
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
-  const [isPending, startTransition] = useTransition();
+  const [isPending, setIsPending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const { setPinValidated, setUseLocalAudio } = useAppStore();
@@ -59,11 +59,12 @@ export function LockScreen({ hasSession }: LockScreenProps) {
     }
   }, [showPin]);
 
-  const handlePinSubmit = (e: React.FormEvent) => {
+  const handlePinSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isPinValid(pin)) return;
+    if (!isPinValid(pin) || isPending) return;
 
-    startTransition(async () => {
+    setIsPending(true);
+    try {
       const result = await validatePin(pin);
       if (result.success) {
         localStorage.setItem(STORAGE_KEY, audioMode);
@@ -81,7 +82,13 @@ export function LockScreen({ hasSession }: LockScreenProps) {
           inputRefs.current[0]?.focus();
         }, 0);
       }
-    });
+    } catch {
+      setIsError(true);
+      setErrorMessage('Algo deu errado. Tente novamente.');
+      setPin('');
+    } finally {
+      setIsPending(false);
+    }
   };
 
   const handleDigitChange = (index: number, value: string) => {

@@ -59,4 +59,37 @@ test.describe('PIN Flow', () => {
 
     await expect(firstInput).toHaveValue('');
   });
+
+  test('rate limit shows friendly message instead of generic error', async ({
+    page,
+  }) => {
+    await page.goto('/');
+
+    await page.locator('text=Continuar Offline').click();
+
+    const inputs = page.locator('input[aria-label^="Dígito"]');
+    const submitButton = page.locator('button[type="submit"]');
+    const alert = page.getByRole('alert').first();
+
+    // In E2E the limit is lowered to 3 attempts via RATE_LIMIT_MAX_ATTEMPTS.
+    // Submit 4 invalid PINs to trigger the rate-limit message.
+    for (let attempt = 0; attempt < 4; attempt++) {
+      await expect(submitButton).toContainText('Entrar', { timeout: 5000 });
+
+      for (let i = 0; i < 4; i++) {
+        await inputs.nth(i).fill(String((attempt + i) % 10));
+      }
+      await submitButton.click();
+    }
+
+    await expect(submitButton).toContainText('Entrar', { timeout: 5000 });
+
+    await expect(alert).toBeVisible();
+    await expect(alert).toContainText('Muitas tentativas');
+
+    // Ensure the generic Next.js error boundary is not shown
+    await expect(
+      page.locator('text=An error occurred in the Server Components render'),
+    ).not.toBeVisible();
+  });
 });

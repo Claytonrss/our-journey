@@ -3,11 +3,11 @@
 import { headers } from 'next/headers';
 import { getPinEnv } from '@/lib/env';
 
-// Rate limiting: max 10 attempts per 60 seconds per IP
+// Rate limiting: max 10 attempts per 60 seconds per IP (configurable via env for tests)
 // In-memory store (resets on server restart, suitable for single-instance or low-traffic)
-const RATE_LIMIT_MAX_ATTEMPTS = 10;
+const RATE_LIMIT_MAX_ATTEMPTS =
+  Number(process.env.RATE_LIMIT_MAX_ATTEMPTS) || 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
-const CLEANUP_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 
 interface RateLimitEntry {
   attempts: number;
@@ -17,23 +17,26 @@ interface RateLimitEntry {
 
 const rateLimitStore = new Map<string, RateLimitEntry>();
 
-// Cleanup expired entries periodically to prevent memory leak
-setInterval(() => {
+function cleanupExpiredEntries(): void {
   const now = Date.now();
   for (const [key, entry] of rateLimitStore) {
     if (now - entry.firstAttempt > RATE_LIMIT_WINDOW_MS * 2) {
       rateLimitStore.delete(key);
     }
   }
-}, CLEANUP_INTERVAL_MS);
+}
 
 async function getClientIdentifier(): Promise<string> {
-  const h = await headers();
-  const ip =
-    h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-    h.get('x-real-ip') ||
-    'unknown';
-  return `pin:${ip}`;
+  try {
+    const h = await headers();
+    const ip =
+      h.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      h.get('x-real-ip') ||
+      'unknown';
+    return `pin:${ip}`;
+  } catch {
+    return 'pin:unknown';
+  }
 }
 
 async function checkRateLimit(): Promise<{
@@ -41,6 +44,9 @@ async function checkRateLimit(): Promise<{
   remaining: number;
   lockedUntil?: number;
 }> {
+  // Cleanup expired entries on each check
+  cleanupExpiredEntries();
+
   const key = await getClientIdentifier();
   const now = Date.now();
   const entry = rateLimitStore.get(key);
