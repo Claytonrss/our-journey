@@ -71,20 +71,32 @@ test.describe('PIN Flow', () => {
     const submitButton = page.locator('button[type="submit"]');
     const alert = page.getByRole('alert').first();
 
-    // In E2E the limit is lowered to 3 attempts via RATE_LIMIT_MAX_ATTEMPTS.
+    // In E2E the limit is lowered to 5 attempts via RATE_LIMIT_MAX_ATTEMPTS.
     // Submit 4 invalid PINs to trigger the rate-limit message.
     for (let attempt = 0; attempt < 4; attempt++) {
-      await expect(submitButton).toContainText('Entrar', { timeout: 5000 });
+      // Wait for the button to be ready (not mid-flight) before each attempt.
+      // This guards against the race where the previous Server Action is still
+      // in-flight (isPending=true → "Validando...") when the next iteration
+      // starts — particularly visible on slow CI runners.
+      await expect(submitButton).toBeEnabled({ timeout: 10000 });
+      await expect(submitButton).toContainText('Entrar', { timeout: 10000 });
 
       for (let i = 0; i < 4; i++) {
         await inputs.nth(i).fill(String((attempt + i) % 10));
       }
       await submitButton.click();
+
+      // After clicking, wait for the Server Action to resolve before advancing.
+      // Either the button returns to "Entrar" (error shown) or the rate-limit
+      // kicks in (alert appears) — both mean the round-trip is complete.
+      if (attempt < 3) {
+        await expect(submitButton).not.toContainText('Validando...', {
+          timeout: 10000,
+        });
+      }
     }
 
-    await expect(submitButton).toContainText('Entrar', { timeout: 5000 });
-
-    await expect(alert).toBeVisible();
+    await expect(alert).toBeVisible({ timeout: 10000 });
     await expect(alert).toContainText('Muitas tentativas');
 
     // Ensure the generic Next.js error boundary is not shown

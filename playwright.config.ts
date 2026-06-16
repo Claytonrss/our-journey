@@ -18,7 +18,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
-      RATE_LIMIT_MAX_ATTEMPTS: process.env.RATE_LIMIT_MAX_ATTEMPTS || '3',
+      RATE_LIMIT_MAX_ATTEMPTS: process.env.RATE_LIMIT_MAX_ATTEMPTS || '5',
       SECRET_PIN: process.env.SECRET_PIN || '1234',
       AUTH_SECRET:
         process.env.AUTH_SECRET || 'e2e-test-secret-key-minimum-32-chars',

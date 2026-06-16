@@ -20,15 +20,21 @@ test.describe('Timeline Page', () => {
     await expect(continueBtn).toBeVisible({ timeout: 15000 });
     await continueBtn.click();
 
-    // Fill valid PIN
+    // Fill valid PIN — wait for each input to be visible first
     const inputs = page.locator('input[aria-label^="Dígito"]');
+    await expect(inputs.first()).toBeVisible({ timeout: 10000 });
     for (let i = 0; i < 4; i++) {
       await inputs.nth(i).fill(VALID_PIN[i]);
     }
-    await page.locator('button[type="submit"]').click();
+
+    // Wait until React has processed all fills (isPinValid) before clicking
+    const submitBtn = page.locator('button[type="submit"]');
+    await expect(submitBtn).toBeEnabled({ timeout: 10000 });
+    await submitBtn.click();
 
     // Wait for navigation to /map and view toggle to appear
-    await page.waitForURL('**/map', { timeout: 15000 });
+    // 20 s timeout — CI servers can be slow on the validatePin Server Action
+    await page.waitForURL('**/map', { timeout: 20000 });
     await expect(page.getByRole('button', { name: 'Mapa' })).toBeVisible({
       timeout: 15000,
     });
