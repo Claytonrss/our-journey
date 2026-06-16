@@ -41,6 +41,7 @@ export function LockScreen({ hasSession }: LockScreenProps) {
   const [focusedIndex, setFocusedIndex] = useState<number | null>(null);
   const [isPending, setIsPending] = useState(false);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const abortRef = useRef<AbortController | null>(null);
 
   const { setPinValidated, setUseLocalAudio } = useAppStore();
 
@@ -55,40 +56,63 @@ export function LockScreen({ hasSession }: LockScreenProps) {
 
   useEffect(() => {
     if (showPin && inputRefs.current[0]) {
-      inputRefs.current[0].focus();
+      inputRefs.current[0]?.focus();
     }
   }, [showPin]);
 
-  const handlePinSubmit = async (e: React.FormEvent) => {
+  // Cleanup pending state on unmount
+  useEffect(() => {
+    return () => {
+      abortRef.current?.abort();
+    };
+  }, []);
+
+  const handlePinSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isPinValid(pin) || isPending) return;
 
+    // Cancel any previous in-flight request
+    abortRef.current?.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
     setIsPending(true);
-    try {
-      const result = await validatePin(pin);
-      if (result.success) {
-        localStorage.setItem(STORAGE_KEY, audioMode);
-        setPinValidated(true);
-        setUseLocalAudio(audioMode === 'local');
-        setIsUnlocking(true);
-        setTimeout(() => {
-          router.push('/map');
-        }, 800);
-      } else {
-        setIsError(true);
-        setErrorMessage(result.error ?? getPinErrorMessage(pin, PIN_PATTERNS));
-        setPin('');
-        setTimeout(() => {
-          inputRefs.current[0]?.focus();
-        }, 0);
-      }
-    } catch {
-      setIsError(true);
-      setErrorMessage('Algo deu errado. Tente novamente.');
-      setPin('');
-    } finally {
-      setIsPending(false);
-    }
+    validatePin(pin)
+      .then((result) => {
+        if (controller.signal.aborted) return;
+        if (result.success) {
+          localStorage.setItem(STORAGE_KEY, audioMode);
+          setPinValidated(true);
+          setUseLocalAudio(audioMode === 'local');
+          setIsUnlocking(true);
+          setTimeout(() => {
+            router.push('/map');
+          }, 800);
+        } else {
+          setIsError(true);
+          setErrorMessage(
+            result.error ?? getPinErrorMessage(pin, PIN_PATTERNS),
+          );
+          setPin('');
+          setTimeout(() => {
+            inputRefs.current[0]?.focus();
+          }, 0);
+        }
+      })
+      .catch((err) => {
+        if (controller.signal.aborted) return;
+        // Only show error if it's not an abort
+        if (err?.name !== 'AbortError') {
+          setIsError(true);
+          setErrorMessage('Algo deu errado. Tente novamente.');
+          setPin('');
+        }
+      })
+      .finally(() => {
+        if (!controller.signal.aborted) {
+          setIsPending(false);
+        }
+      });
   };
 
   const handleDigitChange = (index: number, value: string) => {
