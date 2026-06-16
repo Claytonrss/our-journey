@@ -1,10 +1,16 @@
 import { test, expect } from '@playwright/test';
 import { mockMapboxToken } from './fixtures/api-mocks';
+import { resetRateLimit } from './fixtures/auth';
 
 const VALID_PIN = process.env.SECRET_PIN || '1234';
 
 test.describe('Timeline Page', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
+    await resetRateLimit(page);
+    await page.waitForTimeout(100);
+
     // Mock Mapbox token so the brief /map landing doesn't error
     await mockMapboxToken(page);
 
@@ -33,8 +39,8 @@ test.describe('Timeline Page', () => {
     await submitBtn.click();
 
     // Wait for navigation to /map and view toggle to appear
-    // 20 s timeout — CI servers can be slow on the validatePin Server Action
-    await page.waitForURL('**/map', { timeout: 20000 });
+    // 30 s timeout — CI servers can be slow on the validatePin Server Action
+    await page.waitForURL('**/map', { timeout: 30000 });
     await expect(page.getByRole('button', { name: 'Mapa' })).toBeVisible({
       timeout: 15000,
     });

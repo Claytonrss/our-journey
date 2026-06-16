@@ -2,26 +2,24 @@
 
 import { headers } from 'next/headers';
 import { getPinEnv } from '@/lib/env';
+import { getRateLimitStore, type RateLimitEntry } from '@/lib/rateLimitStore';
 
-// Rate limiting: max 10 attempts per 60 seconds per IP (configurable via env for tests)
-// In-memory store (resets on server restart, suitable for single-instance or low-traffic)
 const RATE_LIMIT_MAX_ATTEMPTS =
   Number(process.env.RATE_LIMIT_MAX_ATTEMPTS) || 10;
 const RATE_LIMIT_WINDOW_MS = 60_000;
+const CLEANUP_INTERVAL_MS = 60_000;
 
-interface RateLimitEntry {
-  attempts: number;
-  firstAttempt: number;
-  lockedUntil: number;
-}
-
-const rateLimitStore = new Map<string, RateLimitEntry>();
+let lastCleanup = 0;
 
 function cleanupExpiredEntries(): void {
   const now = Date.now();
-  for (const [key, entry] of rateLimitStore) {
+  if (now - lastCleanup < CLEANUP_INTERVAL_MS) return;
+  lastCleanup = now;
+
+  const store = getRateLimitStore();
+  for (const [key, entry] of store) {
     if (now - entry.firstAttempt > RATE_LIMIT_WINDOW_MS * 2) {
-      rateLimitStore.delete(key);
+      store.delete(key);
     }
   }
 }
@@ -39,17 +37,18 @@ async function getClientIdentifier(): Promise<string> {
   }
 }
 
-async function checkRateLimit(): Promise<{
+interface RateLimitResult {
   allowed: boolean;
   remaining: number;
   lockedUntil?: number;
-}> {
-  // Cleanup expired entries on each check
+}
+
+async function checkRateLimit(key: string): Promise<RateLimitResult> {
   cleanupExpiredEntries();
 
-  const key = await getClientIdentifier();
+  const store = getRateLimitStore();
   const now = Date.now();
-  const entry = rateLimitStore.get(key);
+  const entry = store.get(key);
 
   if (!entry) {
     return { allowed: true, remaining: RATE_LIMIT_MAX_ATTEMPTS - 1 };
@@ -60,8 +59,7 @@ async function checkRateLimit(): Promise<{
   }
 
   if (now - entry.firstAttempt > RATE_LIMIT_WINDOW_MS) {
-    // Window expired, reset
-    rateLimitStore.delete(key);
+    store.delete(key);
     return { allowed: true, remaining: RATE_LIMIT_MAX_ATTEMPTS - 1 };
   }
 
@@ -77,13 +75,13 @@ async function checkRateLimit(): Promise<{
   };
 }
 
-async function recordAttempt(): Promise<void> {
-  const key = await getClientIdentifier();
+function recordAttempt(key: string): void {
+  const store = getRateLimitStore();
   const now = Date.now();
-  const entry = rateLimitStore.get(key);
+  const entry = store.get(key);
 
   if (!entry || now - entry.firstAttempt > RATE_LIMIT_WINDOW_MS) {
-    rateLimitStore.set(key, { attempts: 1, firstAttempt: now, lockedUntil: 0 });
+    store.set(key, { attempts: 1, firstAttempt: now, lockedUntil: 0 });
   } else {
     entry.attempts += 1;
   }
@@ -93,7 +91,8 @@ export async function validatePin(pin: string): Promise<{
   success: boolean;
   error?: string;
 }> {
-  const rateLimit = await checkRateLimit();
+  const clientKey = await getClientIdentifier();
+  const rateLimit = await checkRateLimit(clientKey);
 
   if (!rateLimit.allowed) {
     const remainingSeconds = Math.ceil(
@@ -107,18 +106,15 @@ export async function validatePin(pin: string): Promise<{
 
   const { SECRET_PIN } = getPinEnv();
 
-  // Prevenção de timing attacks simples (usando delay constante ou length check)
   if (pin.length !== 4) {
-    await recordAttempt();
+    recordAttempt(clientKey);
     return { success: false };
   }
 
-  // Em produção real, uma string comparison normal pode sofrer timing attacks.
-  // Para este escopo, a validação exata é suficiente.
   const isValid = pin === SECRET_PIN;
 
   if (!isValid) {
-    await recordAttempt();
+    recordAttempt(clientKey);
   }
 
   return { success: isValid };

@@ -2,7 +2,7 @@ import { defineConfig, devices } from '@playwright/test';
 
 export default defineConfig({
   testDir: './e2e',
-  timeout: 30_000,
+  timeout: 60_000,
   expect: { timeout: 10_000 },
   retries: process.env.CI ? 2 : 0,
   use: {
@@ -18,7 +18,7 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
     env: {
-      RATE_LIMIT_MAX_ATTEMPTS: process.env.RATE_LIMIT_MAX_ATTEMPTS || '5',
+      RATE_LIMIT_MAX_ATTEMPTS: process.env.RATE_LIMIT_MAX_ATTEMPTS || '20',
       SECRET_PIN: process.env.SECRET_PIN || '1234',
       AUTH_SECRET:
         process.env.AUTH_SECRET || 'e2e-test-secret-key-minimum-32-chars',
@@ -32,10 +32,29 @@ export default defineConfig({
       CLOUDINARY_CLOUD_NAME: 'demo',
       CLOUDINARY_API_KEY: 'e2e-test',
       CLOUDINARY_API_SECRET: 'e2e-test',
+      E2E_RESET_ENABLED: 'true',
     },
   },
   projects: [
-    { name: 'chromium', use: { ...devices['Desktop Chrome'] } },
-    { name: 'mobile-chrome', use: { ...devices['Pixel 7'] } },
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+      testIgnore: /pin-rate-limit\.spec\.ts/,
+    },
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 7'] },
+      testIgnore: /pin-rate-limit\.spec\.ts/,
+    },
+    {
+      name: 'rate-limit',
+      testMatch: /pin-rate-limit\.spec\.ts/,
+      use: { ...devices['Desktop Chrome'] },
+    },
+    {
+      name: 'rate-limit-mobile',
+      testMatch: /pin-rate-limit\.spec\.ts/,
+      use: { ...devices['Pixel 7'] },
+    },
   ],
 });

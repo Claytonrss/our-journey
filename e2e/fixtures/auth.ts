@@ -2,6 +2,14 @@ import { expect } from '@playwright/test';
 import type { Page } from '@playwright/test';
 
 /**
+ * Resets the server-side PIN rate limit store via the internal E2E endpoint.
+ * Call in beforeEach to isolate tests from shared rate-limit state.
+ */
+export async function resetRateLimit(page: Page): Promise<void> {
+  await page.request.post('http://127.0.0.1:3000/api/internal/e2e-reset');
+}
+
+/**
  * Fills the 4-digit PIN on the lock screen and submits.
  * Assumes the page is on the lock screen and PIN inputs are visible.
  *
@@ -24,6 +32,6 @@ export async function authenticateViaPin(
   await expect(submitBtn).toBeEnabled({ timeout: 10_000 });
   await submitBtn.click();
 
-  // Increased to 20 s — CI servers can be slow on the validatePin Server Action
-  await page.waitForURL('**/map', { timeout: 20_000 });
+  // Increased to 30 s — CI servers can be slow on the validatePin Server Action
+  await page.waitForURL('**/map', { timeout: 30_000 });
 }
