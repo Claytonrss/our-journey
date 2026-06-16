@@ -1,9 +1,12 @@
 import { test, expect } from '@playwright/test';
 import { mockMapboxToken } from './fixtures/api-mocks';
+import { resetRateLimit } from './fixtures/auth';
 
 const VALID_PIN = process.env.SECRET_PIN || '1234';
 
 test.describe('Mobile Viewport — Lock Screen', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test('lock screen renders on mobile viewport', async ({ page }) => {
     await page.goto('/');
 
@@ -30,7 +33,11 @@ test.describe('Mobile Viewport — Lock Screen', () => {
 });
 
 test.describe('Mobile Viewport — Authenticated', () => {
+  test.describe.configure({ mode: 'serial' });
+
   test.beforeEach(async ({ page }) => {
+    await resetRateLimit(page);
+    await page.waitForTimeout(100);
     await mockMapboxToken(page);
 
     await page.goto('/');
@@ -56,7 +63,7 @@ test.describe('Mobile Viewport — Authenticated', () => {
     await page.locator('button[type="submit"]').click();
 
     // Wait for navigation to /map
-    await page.waitForURL('**/map', { timeout: 15000 });
+    await page.waitForURL('**/map', { timeout: 30000 });
 
     // Wait for the map page to fully render
     await expect(page.getByRole('button', { name: 'Mapa' })).toBeVisible({

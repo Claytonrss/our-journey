@@ -1,7 +1,15 @@
 import { test, expect } from '@playwright/test';
+import { resetRateLimit } from './fixtures/auth';
 
 test.describe('PIN Flow', () => {
+  test.describe.configure({ mode: 'serial' });
+
   const VALID_PIN = process.env.SECRET_PIN || '1234';
+
+  test.beforeEach(async ({ page }) => {
+    await resetRateLimit(page);
+    await page.waitForTimeout(100);
+  });
 
   test('lock screen renders with PIN input fields', async ({ page }) => {
     await page.goto('/');
@@ -44,7 +52,7 @@ test.describe('PIN Flow', () => {
     }
     await page.locator('button[type="submit"]').click();
 
-    await page.waitForURL('**/map');
+    await page.waitForURL('**/map', { timeout: 30000 });
 
     await expect(page).toHaveURL(/\/map/);
   });

@@ -4,8 +4,142 @@
     "superpowers@git+https://github.com/obra/superpowers.git",
     "ecc@git+https://github.com/affaan-m/ECC.git"
   ],
+  "model": "opencode-go/qwen3.7-plus",
   "permission": {
     "edit": "ask",
-    "bash": "ask"
+    "bash": "ask",
+    "skill": {
+      "*": "allow",
+      "semantic-commit": "allow",
+      "open-pr": "allow",
+      "code-review": "allow",
+      "branch-creator": "allow",
+      "test-runner": "allow",
+      "docs-updater": "allow"
+    }
+  },
+  "agent": {
+    "explore": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "description": "Codebase explorer - finds patterns, architecture, and relevant files",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "grep *": "allow",
+          "find *": "allow",
+          "ls *": "allow",
+          "cat *": "allow",
+          "git log*": "allow",
+          "git diff": "allow",
+          "*": "deny"
+        }
+      }
+    },
+    "plan": {
+      "mode": "primary",
+      "model": "opencode-go/glm-5",
+      "description": "Architecture planner - creates detailed implementation plans",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": "deny"
+      }
+    },
+    "implement": {
+      "mode": "subagent",
+      "model": "opencode-go/qwen3.7-plus",
+      "description": "Feature implementer - writes code and validates with build/test",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "pnpm run build": "allow",
+          "pnpm run test": "allow",
+          "pnpm run lint": "allow",
+          "pnpm run format": "allow",
+          "git status": "allow",
+          "git diff": "allow",
+          "git log*": "allow",
+          "git *": "ask",
+          "*": "deny"
+        }
+      }
+    },
+    "verify": {
+      "mode": "subagent",
+      "model": "opencode-go/glm-5",
+      "description": "Quality verifier - reviews code and finds bugs/edge cases",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "git diff": "allow",
+          "git log*": "allow",
+          "git status": "allow",
+          "pnpm run build": "allow",
+          "pnpm run test": "allow",
+          "pnpm run lint": "allow",
+          "*": "deny"
+        }
+      }
+    },
+    "security-audit": {
+      "mode": "subagent",
+      "model": "opencode-go/glm-5",
+      "description": "Security auditor - reviews code for vulnerabilities and security issues",
+      "temperature": 0.1,
+      "permission": {
+        "edit": "deny",
+        "bash": {
+          "git diff": "allow",
+          "git log*": "allow",
+          "grep *": "allow",
+          "find *": "allow",
+          "cat *": "allow",
+          "*": "deny"
+        }
+      }
+    },
+    "orchestrator": {
+      "mode": "primary",
+      "model": "opencode-go/qwen3.7-plus",
+      "description": "Workflow orchestrator - coordinates explore, implement, verify, security-audit phases",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "ask",
+        "bash": {
+          "git *": "ask",
+          "pnpm run build": "allow",
+          "pnpm run test": "allow",
+          "pnpm run lint": "allow",
+          "*": "deny"
+        },
+        "skill": {
+          "*": "allow",
+          "semantic-commit": "allow",
+          "open-pr": "allow",
+          "code-review": "allow",
+          "branch-creator": "allow",
+          "test-runner": "allow",
+          "docs-updater": "allow"
+        }
+      }
+    },
+    "test-writer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "description": "Test writer - writes edge case tests and improves coverage",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "pnpm run test": "allow",
+          "pnpm run test:coverage": "allow",
+          "*": "deny"
+        }
+      }
+    }
   }
 }
