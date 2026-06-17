@@ -40,9 +40,11 @@ test.describe('Lightbox Keyboard Navigation', () => {
     await timelineBtn.click();
     await page.waitForURL('**/timeline', { timeout: 10000 });
 
-    const firstPhoto = page.locator('img[alt]').first();
-    await expect(firstPhoto).toBeVisible({ timeout: 10000 });
-    await firstPhoto.click();
+    // Click on a photo from CardPhotoStrip (extra photos strip) to open lightbox
+    // CardPhotoStrip photos are in a horizontal scrollable container with rounded-lg
+    const stripPhoto = page.locator('.rounded-lg.cursor-pointer').first();
+    await expect(stripPhoto).toBeVisible({ timeout: 10000 });
+    await stripPhoto.click();
 
     const closeBtn = page.locator('button[aria-label="Fechar foto"]');
     await expect(closeBtn).toBeVisible({ timeout: 5000 });
