@@ -12,7 +12,10 @@
       "*": "allow",
       "semantic-commit": "allow",
       "open-pr": "allow",
-      "code-review": "allow"
+      "code-review": "allow",
+      "branch-creator": "allow",
+      "test-runner": "allow",
+      "docs-updater": "allow"
     }
   },
   "agent": {
@@ -95,6 +98,45 @@
           "grep *": "allow",
           "find *": "allow",
           "cat *": "allow",
+          "*": "deny"
+        }
+      }
+    },
+    "orchestrator": {
+      "mode": "primary",
+      "model": "opencode-go/qwen3.7-plus",
+      "description": "Workflow orchestrator - coordinates explore, implement, verify, security-audit phases",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "ask",
+        "bash": {
+          "git *": "ask",
+          "pnpm run build": "allow",
+          "pnpm run test": "allow",
+          "pnpm run lint": "allow",
+          "*": "deny"
+        },
+        "skill": {
+          "*": "allow",
+          "semantic-commit": "allow",
+          "open-pr": "allow",
+          "code-review": "allow",
+          "branch-creator": "allow",
+          "test-runner": "allow",
+          "docs-updater": "allow"
+        }
+      }
+    },
+    "test-writer": {
+      "mode": "subagent",
+      "model": "opencode-go/deepseek-v4-flash",
+      "description": "Test writer - writes edge case tests and improves coverage",
+      "temperature": 0.2,
+      "permission": {
+        "edit": "allow",
+        "bash": {
+          "pnpm run test": "allow",
+          "pnpm run test:coverage": "allow",
           "*": "deny"
         }
       }
