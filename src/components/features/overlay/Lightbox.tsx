@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { motion, AnimatePresence, PanInfo } from 'framer-motion';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { CldImage } from 'next-cloudinary';
+import { useKeyboard } from '@/hooks/useKeyboard';
 import type { Image as ImageType } from '@/types';
 
 interface LightboxProps {
@@ -21,6 +22,12 @@ export function Lightbox({
 }: LightboxProps) {
   const [loadedIndex, setLoadedIndex] = useState<number | null>(null);
   const [errorIndex, setErrorIndex] = useState<number | null>(null);
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    containerRef.current?.focus();
+  }, []);
 
   const isLoading = loadedIndex !== currentIndex;
   const hasError = errorIndex === currentIndex;
@@ -51,10 +58,18 @@ export function Lightbox({
     if (currentIndex < images.length - 1) onNavigate(currentIndex + 1);
   };
 
+  useKeyboard({
+    ArrowLeft: goPrev,
+    ArrowRight: goNext,
+    Escape: onClose,
+  });
+
   const image = images[currentIndex];
 
   return (
     <motion.div
+      ref={containerRef}
+      tabIndex={-1}
       className="fixed inset-0 flex items-center justify-center"
       style={{
         zIndex: 100,
@@ -195,6 +210,7 @@ export function Lightbox({
       {images.length > 1 && (
         <div
           className="absolute bottom-6 left-0 right-0 text-center"
+          aria-live="polite"
           style={{
             fontFamily: 'var(--font-ui)',
             fontSize: '12px',
