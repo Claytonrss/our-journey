@@ -1,13 +1,14 @@
 import fs from 'fs';
 import path from 'path';
+import os from 'os';
 
 const SOURCE_DIR = path.join(
-  process.env.HOME || '/Users/clayton',
+  process.env.HOME || os.homedir(),
   'Downloads',
   'cidades',
 );
 const DEST_DIR = path.join(
-  process.env.HOME || '/Users/clayton',
+  process.env.HOME || os.homedir(),
   'Downloads',
   'cidades_organizadas',
 );

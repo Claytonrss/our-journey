@@ -20,4 +20,3 @@ Itens não agendados em nenhuma fase do [Roadmap](ROADMAP.md).
 
 - [ ] Suporte a navegação por teclado (←/→/Esc) no Lightbox
 - [ ] Modo offline para fotos já cacheadas
-- [ ] Internacionalização (EN) para portfólio de recrutadores
