@@ -2,7 +2,7 @@
 
 **Cada pin é um pedaço nosso — um mapa vivo das viagens, encontros e histórias que só nós dois sabemos.**
 
-![Demonstração do Our Journey](./fluxo.gif)
+https://github.com/user-attachments/assets/04dad2f8-7783-4e68-ac25-02c106d60ccf
 
 Um projeto interativo que cataloga 38 locais que visitamos, combinando navegação geo-espacial, visualização de fotos e trilha sonora ambiente. Construído inicialmente como um presente, este repositório também serve como um showcase técnico de engenharia front-end.
 
