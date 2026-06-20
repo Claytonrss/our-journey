@@ -30,7 +30,6 @@ export default function MapPage() {
     setActiveMemoryId,
     selectedMemoryId,
     setSelectedMemoryId,
-    setViewMode,
     isPinValidated,
   } = useAppStore();
   const router = useRouter();
@@ -65,9 +64,8 @@ export default function MapPage() {
 
   const handleIntroComplete = useCallback(() => {
     setActiveMemoryId(memories[0].id);
-    setViewMode('story');
     setIntroComplete(true);
-  }, [memories, setActiveMemoryId, setViewMode]);
+  }, [memories, setActiveMemoryId]);
 
   const selectedMemory =
     memories.find((m) => m.id === selectedMemoryId) || null;
