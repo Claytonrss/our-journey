@@ -1,4 +1,4 @@
-export type PinPattern = {
+type PinPattern = {
   regex: RegExp;
   message: string;
 };

@@ -39,11 +39,11 @@ export interface SpotifyPlaybackState {
   };
 }
 
-export type SpotifyEventCallback = (payload: unknown) => void;
+type SpotifyEventCallback = (payload: unknown) => void;
 
 const SPOTIFY_SDK_URL = 'https://sdk.scdn.co/spotify-player.js';
 
-export type TokenProvider = () => Promise<string>;
+type TokenProvider = () => Promise<string>;
 
 export class SpotifyService {
   private player: SpotifyPlayer | null = null;
