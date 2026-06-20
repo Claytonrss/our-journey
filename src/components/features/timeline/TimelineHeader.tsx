@@ -3,9 +3,7 @@
 import { motion } from 'framer-motion';
 
 interface TimelineHeaderProps {
-  totalPlaces?: number;
   yearSpan: number;
-  totalPhotos?: number;
 }
 
 export function TimelineHeader({ yearSpan }: TimelineHeaderProps) {

@@ -114,8 +114,7 @@ export function TimelinePage() {
     return null;
   }
 
-  const totalPlaces = memories.length;
-  const { totalPhotos, yearSpan } = calculateMemoryStats(memories);
+  const { yearSpan } = calculateMemoryStats(memories);
 
   const yearEntries = Array.from(groupMemoriesByYear(memories).entries());
 
@@ -132,11 +131,7 @@ export function TimelinePage() {
         <GoldLine scrollYProgress={scrollYProgress} />
 
         <div className="relative">
-          <TimelineHeader
-            totalPlaces={totalPlaces}
-            yearSpan={yearSpan}
-            totalPhotos={totalPhotos}
-          />
+          <TimelineHeader yearSpan={yearSpan} />
 
           {yearEntries.map(([year, yearMemories]) => (
             <React.Fragment key={year}>
