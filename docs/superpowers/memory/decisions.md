@@ -28,4 +28,11 @@
 - **Decisão**: Abordagem híbrida: Superpowers como espinha dorsal, ECC com `ECC_HOOK_PROFILE=minimal`. Bridge skills em AGENTS.md. Memória em markdown versionado.
 - **Consequências**: Dois plugins para manter. Hooks do ECC desligados seletivamente. Memória manual (não automática).
 
+## ADR-005: E2E (Playwright) apenas no CI, não no pre-push local
+
+- **Data**: 2026-06-20
+- **Contexto**: CI roda E2E completo. Pre-push local roda format+lint+test+build. Decidir se E2E entra no pre-push.
+- **Decisão**: Manter E2E apenas no CI. Playwright requer browsers (~200MB) e é lento (~30s+). Adicionar ao pre-push geraria fricção no fluxo de dev.
+- **Consequências**: Agente pode pushar código que quebra E2E e só descobrir no CI. Se isso ocorrer com frequência, reconsiderar.
+
 (Add new decisions as sessions progress)
