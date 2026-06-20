@@ -37,9 +37,8 @@ export function GlobalAudio() {
       }
 
       return () => {
-        // We do not stop the music on unmount because this component should persist.
-        // However, if useLocalAudio becomes false, we should stop it.
-        // But since this effect re-runs, we handle stopping differently if needed.
+        html5Instance.stop();
+        initializedRef.current = false;
       };
     }
 
