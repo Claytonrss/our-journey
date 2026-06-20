@@ -13,20 +13,16 @@
   --text-warm: #f2ede4;
   --text-muted: #6e6860;
   --text-ghost: #2e2a28;
-  --gold-muted: var(--gold-dim);
   --text-primary: var(--text-warm);
   --text-secondary: var(--text-muted);
   --text-date: var(--text-ghost);
   --color-brand-gold: #d4af37;
-  --color-brand-rose: #e8a598;
-  --color-brand-deep: #2d1b0e;
 }
 
 @theme inline {
   --color-background: var(--bg-void);
   --color-foreground: var(--text-primary);
   --color-brand-gold: var(--gold);
-  --color-brand-rose: var(--color-brand-rose);
   --font-sans: var(--font-dm-sans);
   --font-ui: var(--font-dm-sans);
   --font-display: var(--font-playfair);
@@ -65,50 +61,6 @@
   }
   80% {
     transform: translateX(6px);
-  }
-}
-
-@keyframes float-gradient {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.12;
-  }
-  33% {
-    transform: translate(30px, -20px) scale(1.1);
-    opacity: 0.18;
-  }
-  66% {
-    transform: translate(-20px, 15px) scale(0.95);
-    opacity: 0.1;
-  }
-}
-
-@keyframes pin-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.6));
-    transform: scale(1);
-  }
-  50% {
-    filter: drop-shadow(0 0 14px rgba(212, 175, 55, 0.8));
-    transform: scale(1.08);
-  }
-}
-
-@keyframes pin-glow {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.3));
-  }
-  50% {
-    filter: drop-shadow(0 0 8px rgba(212, 175, 55, 0.5));
-  }
-}
-
-@keyframes shimmer {
-  100% {
-    transform: translateX(100%);
   }
 }
 
@@ -199,15 +151,6 @@ body::after {
   }
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
 /* Scrollbar oculta para strips horizontais */
 .scrollbar-hide {
   -ms-overflow-style: none; /* IE and Edge */
@@ -215,16 +158,4 @@ body::after {
 }
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari and Opera */
-}
-
-/* Keyframe para o pulse do YearDivider dot */
-@keyframes year-dot-pulse {
-  0% {
-    transform: scale(1);
-    opacity: 0.6;
-  }
-  100% {
-    transform: scale(1.8);
-    opacity: 0;
-  }
 }

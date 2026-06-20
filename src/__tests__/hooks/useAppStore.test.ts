@@ -8,7 +8,6 @@ describe('useAppStore', () => {
       useAppStore.setState({
         activeMemoryId: null,
         selectedMemoryId: null,
-        viewMode: 'story',
         isPlaying: false,
         currentTrack: null,
         isPinValidated: false,
@@ -22,7 +21,6 @@ describe('useAppStore', () => {
     const state = useAppStore.getState();
     expect(state.activeMemoryId).toBeNull();
     expect(state.selectedMemoryId).toBeNull();
-    expect(state.viewMode).toBe('story');
     expect(state.isPlaying).toBe(false);
     expect(state.currentTrack).toBeNull();
     expect(state.isPinValidated).toBe(false);
@@ -42,18 +40,6 @@ describe('useAppStore', () => {
       useAppStore.getState().setSelectedMemoryId('sp-curitiba');
     });
     expect(useAppStore.getState().selectedMemoryId).toBe('sp-curitiba');
-  });
-
-  it('setViewMode toggles between story and free', () => {
-    act(() => {
-      useAppStore.getState().setViewMode('free');
-    });
-    expect(useAppStore.getState().viewMode).toBe('free');
-
-    act(() => {
-      useAppStore.getState().setViewMode('story');
-    });
-    expect(useAppStore.getState().viewMode).toBe('story');
   });
 
   it('setIsPlaying toggles playback state', () => {

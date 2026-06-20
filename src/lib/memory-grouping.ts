@@ -22,20 +22,16 @@ export function groupMemoriesByYear(memories: Memory[]): Map<number, Memory[]> {
 }
 
 export function calculateMemoryStats(memories: Memory[]): {
-  minYear: number;
-  maxYear: number;
   yearSpan: number;
   totalPhotos: number;
 } {
   if (memories.length === 0) {
-    return { minYear: 0, maxYear: 0, yearSpan: 0, totalPhotos: 0 };
+    return { yearSpan: 0, totalPhotos: 0 };
   }
 
   const years = memories.map((m) => new Date(m.date).getFullYear());
-  const minYear = Math.min(...years);
-  const maxYear = Math.max(...years);
-  const yearSpan = maxYear - minYear + 1;
+  const yearSpan = Math.max(...years) - Math.min(...years) + 1;
   const totalPhotos = memories.reduce((acc, m) => acc + m.images.length, 0);
 
-  return { minYear, maxYear, yearSpan, totalPhotos };
+  return { yearSpan, totalPhotos };
 }

@@ -8,7 +8,7 @@ import { HTML5AudioService } from '@/services/html5AudioService';
 export const spotifyInstance = new SpotifyService();
 export const html5Instance = new HTML5AudioService();
 
-export interface AudioPlayerHook {
+interface AudioPlayerHook {
   isPlaying: boolean;
   currentTrack: { title: string; artist: string; albumCover?: string } | null;
   togglePlay: () => void;

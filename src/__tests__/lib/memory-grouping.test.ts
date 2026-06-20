@@ -144,7 +144,7 @@ describe('groupMemoriesByYear()', () => {
 });
 
 describe('calculateMemoryStats()', () => {
-  it('calculates minYear, maxYear, yearSpan, and totalPhotos', () => {
+  it('calculates yearSpan and totalPhotos', () => {
     const memories: Memory[] = [
       makeMemory('1', '2020-03-01', 2),
       makeMemory('2', '2022-07-15', 3),
@@ -153,8 +153,6 @@ describe('calculateMemoryStats()', () => {
 
     const stats = calculateMemoryStats(memories);
 
-    expect(stats.minYear).toBe(2020);
-    expect(stats.maxYear).toBe(2022);
     expect(stats.yearSpan).toBe(3);
     expect(stats.totalPhotos).toBe(6);
   });
@@ -162,19 +160,15 @@ describe('calculateMemoryStats()', () => {
   it('returns zeros for empty input', () => {
     const stats = calculateMemoryStats([]);
 
-    expect(stats.minYear).toBe(0);
-    expect(stats.maxYear).toBe(0);
     expect(stats.yearSpan).toBe(0);
     expect(stats.totalPhotos).toBe(0);
   });
 
-  it('returns same min and max for single memory', () => {
+  it('returns yearSpan 1 for single memory', () => {
     const memories: Memory[] = [makeMemory('1', '2021-06-01', 3)];
 
     const stats = calculateMemoryStats(memories);
 
-    expect(stats.minYear).toBe(2021);
-    expect(stats.maxYear).toBe(2021);
     expect(stats.yearSpan).toBe(1);
     expect(stats.totalPhotos).toBe(3);
   });
