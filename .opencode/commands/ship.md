@@ -1,45 +1,45 @@
 ---
-description: Criar branch, commit semântico, push e PR com spec em pt-br
+description: Create branch, semantic commits, push, and PR with spec in pt-br
 ---
 
-Você vai executar o fluxo completo de submissão de código seguindo rigorosamente estas etapas:
+You will execute the complete code submission flow following these steps rigorously:
 
-## 1. Verificar estado atual
+## 1. Check current state
 
-Execute e analise:
+Run and analyze:
 
 ```bash
 git status
 git diff --stat
 ```
 
-Se não houver mudanças, informe ao usuário e pare.
+If there are no changes, inform the user and stop.
 
-## 2. Criar branch
+## 2. Create branch
 
-Pergunte ao usuário (se não foi fornecido em $ARGUMENTS):
+Ask the user (if not provided in $ARGUMENTS):
 
-- Tipo: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`
-- Descrição curta (kebab-case, inglês, máximo 50 chars)
+- Type: `feat`, `fix`, `chore`, `docs`, `refactor`, `test`
+- Short description (kebab-case, English, max 50 chars)
 
-Crie a branch:
+Create the branch:
 
 ```bash
-git checkout -b <tipo>/<descrição>
+git checkout -b <type>/<description>
 ```
 
-Exemplo: `feat/add-spotify-authentication`
+Example: `feat/add-spotify-authentication`
 
-## 3. Commits semânticos
+## 3. Semantic commits
 
-Para cada arquivo/grupo lógico de mudanças:
+For each file/logical group of changes:
 
 ```bash
-git add <arquivos>
+git add <files>
 git commit -m "<type>(<scope>): <description>"
 ```
 
-Formato Conventional Commits (em inglês):
+Conventional Commits format (in English):
 
 - `feat`: new feature
 - `fix`: bug fix
@@ -49,9 +49,9 @@ Formato Conventional Commits (em inglês):
 - `test`: adding or correcting tests
 - `chore`: maintenance (deps, config, etc)
 
-Scope opcional: `auth`, `map`, `player`, `ui`, `api`, etc
+Optional scope: `auth`, `map`, `player`, `ui`, `api`, etc
 
-Exemplos:
+Examples:
 
 - `feat(auth): add PIN validation with rate limiting`
 - `fix(map): correct initial zoom on memories`
@@ -60,12 +60,12 @@ Exemplos:
 ## 4. Push
 
 ```bash
-git push -u origin <nome-da-branch>
+git push -u origin <branch-name>
 ```
 
-## 5. Criar PR com spec em pt-br
+## 5. Create PR with spec in pt-br
 
-Gere o PR usando `gh pr create` com o seguinte template:
+Generate the PR using `gh pr create` with the following template:
 
 ```bash
 gh pr create --title "<type>(<scope>): <title>" --body "
@@ -97,19 +97,19 @@ gh pr create --title "<type>(<scope>): <title>" --body "
 "
 ```
 
-## 6. Confirmar sucesso
+## 6. Confirm success
 
-Informe ao usuário:
+Inform the user:
 
-- URL do PR criado
-- Resumo do que foi feito
-- Próximos passos sugeridos (ex: aguardar CI, pedir review)
+- Created PR URL
+- Summary of what was done
+- Suggested next steps (e.g., wait for CI, request review)
 
-## Regras importantes
+## Important rules
 
-- **NUNCA** commite direto na `main`
-- **NUNCA** force push
-- **SEMPRE** use Conventional Commits em inglês (branch e commits)
-- **SEMPRE** escreva descrição do PR em pt-br
-- **SEMPRE** inclua a seção "Especificação" no PR
-- Se algo falhar, pare e informe o erro — não tente corrigir automaticamente
+- **NEVER** commit directly to `main`
+- **NEVER** force push
+- **ALWAYS** use Conventional Commits in English (branch and commits)
+- **ALWAYS** write PR description in pt-br
+- **ALWAYS** include the "Especificação" section in the PR
+- If something fails, stop and report the error — do not try to fix automatically
