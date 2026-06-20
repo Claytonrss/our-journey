@@ -42,28 +42,24 @@ For any task in this repository:
 - **pnpm 9** only — never npm or yarn. `pnpm-lock.yaml` is source of truth.
 - Dev server binds to `127.0.0.1` (not `localhost`) for Spotify OAuth.
 
-## 4. Visual Anti-Patterns — NEVER
+## 3b. Hooks & Gates
 
-- Never use colors outside the design system palette
-- Never use light mode or white backgrounds
-- Never break full-width primary buttons
-- Never put technical jargon in UI copy (the user is Marina)
-- Never demote the hero photo — first image in `memory.images[]` is always dominant full-bleed
-- Never unmount `MapView` during navigation — overlay pattern only
-- Never expose `MAPBOX_TOKEN`, `SPOTIFY_CLIENT_SECRET`, or `CLOUDINARY_API_SECRET` to the client
-- Never use `any` in TypeScript
-- Never skip `alt` on images or `aria-label` on icon-only buttons
+| Hook         | What runs                          | When                 |
+| ------------ | ---------------------------------- | -------------------- |
+| `pre-commit` | `lint-staged` (Prettier + ESLint)  | Every commit (light) |
+| `commit-msg` | commitlint (Conventional Commits)  | Every commit         |
+| `pre-push`   | format:check + lint + test + build | Before push (heavy)  |
+| CI `verify`  | All above + coverage + audit + E2E | PR/push to main      |
+
+Rule: heavy checks run on pre-push/CI only, not pre-commit.
+
+## 4. Visual Anti-Patterns
+
+See `docs/superpowers/memory/patterns.md` § "Visual Anti-Patterns — NEVER Do".
 
 ## 5. Do Not Change Without Asking
 
-- Color palette and CSS custom properties in `globals.css`
-- Memory data schema (`MemorySchema` / `ImageSchema` in `src/types/index.ts`)
-- PIN authentication flow (`LockScreen`, `validatePin` server action, rate limiting)
-- "Memory as Editorial" philosophy — hero photo dominant, editorial typography
-- Any UI copy directed at Marina (intro, PIN messages, memory descriptions)
-- Overlay pattern — never unmount the WebGL map
-- BFF pattern for API secrets
-- `lang="pt-BR"` on `<html>`
+See `docs/superpowers/memory/patterns.md` § "Copy That Must Not Change Without Asking" + `docs/superpowers/memory/architecture.md` § "Critical Dependencies".
 
 ## 6. Memory Files (see `docs/superpowers/memory/`)
 
@@ -93,6 +89,20 @@ This project uses **Superpowers** (methodological backbone) and **ECC** (special
 | `ecc-security-audit` | Features with auth, APIs, sensitive data                                              |
 | `ecc-deep-review`    | Deep review (security, performance, edge cases); complements `requesting-code-review` |
 | `ecc-debug`          | Advanced debugging when `systematic-debugging` didn't resolve                         |
+
+### Local Skills (Project-Specific)
+
+| Skill                             | When                                                                      |
+| --------------------------------- | ------------------------------------------------------------------------- |
+| `requesting-code-review-reminder` | Before claiming done or opening PR — ensures review is requested          |
+| `parallel-execution`              | When plan has 2+ independent tasks — suggests worktrees + parallel agents |
+
+### Local Plugin (Workflow Guard)
+
+`.opencode/plugins/workflow-guard.ts` provides hooks:
+
+- `session.idle` — suggests `requesting-code-review` if 3+ files changed
+- `todo.updated` — suggests `parallel-execution` if multiple independent tasks detected
 
 ### Persistent Memory
 

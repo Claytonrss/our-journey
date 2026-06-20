@@ -52,6 +52,37 @@ graph LR
 
 ---
 
+## 🤖 AI-Powered Development
+
+Este projeto demonstra práticas modernas de **AI-Assisted Engineering**:
+
+**Stack de IA:**
+
+- **OpenCode** — CLI com 5 agentes especializados + plugins customizados
+- **Superpowers** — Espinha dorsal metodológica (brainstorming → spec → plan → TDD → review)
+- **ECC** — Subagentes especializados (security audit, deep review, debug)
+- **Context7 MCP** — Documentação de libs em tempo real
+
+**Automação:**
+
+- Plugin customizado com hooks (`session.idle`, `todo.updated`) que sugerem code review e paralelismo
+- Hooks Git: pre-commit (lint-staged), pre-push (format + lint + test + build), commit-msg (Conventional Commits)
+- Branch protection na `main` + CI obrigatório (GitHub Actions)
+- Comando `/ship` — fluxo completo: branch → commits semânticos → push → PR com spec em pt-br
+
+**Memória Persistente:**
+
+- `docs/superpowers/memory/` — Contexto versionado entre sessões (ARQUITETURA.md, decisions.md, patterns.md, known-issues.md)
+- ADRs (Architecture Decision Records) para decisões importantes
+
+**Resultados:**
+
+- Zero duplicação — documentação referenciada, não repetida
+- Guardrails automatizados — erros recorrentes viram constraints determinísticas
+- Contexto sob demanda — skills carregadas apenas quando necessárias (economia de tokens)
+
+---
+
 ## Como Rodar
 
 ```bash
