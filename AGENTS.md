@@ -97,13 +97,6 @@ This project uses **Superpowers** (methodological backbone) and **ECC** (special
 | `requesting-code-review-reminder` | Before claiming done or opening PR — ensures review is requested          |
 | `parallel-execution`              | When plan has 2+ independent tasks — suggests worktrees + parallel agents |
 
-### Local Plugin (Workflow Guard)
-
-`.opencode/plugins/workflow-guard.ts` provides hooks:
-
-- `session.idle` — suggests `requesting-code-review` if 3+ files changed
-- `todo.updated` — suggests `parallel-execution` if multiple independent tasks detected
-
 ### Persistent Memory
 
 On session start: read `docs/superpowers/memory/architecture.md` and `docs/superpowers/memory/decisions.md`.
