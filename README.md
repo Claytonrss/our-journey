@@ -15,6 +15,7 @@ Um projeto interativo que cataloga 38 locais que visitamos, combinando navegaç�
 <br>
 [![CI Pipeline](https://img.shields.io/github/actions/workflow/status/Claytonrss/our-journey/ci.yml?style=flat-square&logo=githubactions&logoColor=D4AF37&label=CI%20Pipeline)](https://github.com/Claytonrss/our-journey/actions)
 [![Vitest & Playwright](https://img.shields.io/badge/Tested_with-Vitest_%7C_Playwright-080808?style=flat-square&logo=vitest&logoColor=D4AF37)](https://vitest.dev/)
+[![Sentry](https://img.shields.io/badge/Sentry-Observability-080808?style=flat-square&logo=sentry&logoColor=D4AF37)](https://sentry.io/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-080808.svg?style=flat-square&logo=opensourceinitiative&logoColor=D4AF37)](https://opensource.org/licenses/MIT)
 
 **[our-journey-cm.vercel.app/map](https://our-journey-cm.vercel.app/map)**
@@ -49,6 +50,19 @@ graph LR
 ```
 
 - **Overlay Pattern:** O contexto WebGL do Mapbox é caro. Em vez de desmontar o mapa durante a navegação, utilizamos um padrão de overlay (sobreposição), onde as views (detalhes do local, timeline) são renderizadas sobre o mapa de forma não destrutiva.
+
+### Observabilidade
+
+Monitoramento full-stack com [Sentry](https://sentry.io/) (`@sentry/nextjs` v10) cobrindo os três runtimes do Next.js:
+
+- **Client, Server & Edge** — configs separadas por runtime via `instrumentation.ts`
+- **Performance Monitoring** — `tracesSampleRate` adaptativo (1.0 dev / 0.05 prod)
+- **Source Maps** — uploadadas automaticamente no build e deletadas após processamento
+- **Error Boundaries** — `global-error.tsx` captura exceções não tratadas com `captureException`
+- **Request Error Tracking** — `captureRequestError` via instrumentation para erros de servidor
+- **Local Variables** — contexto de debug enriquecido no server-side (`includeLocalVariables`)
+
+![Sentry Dashboard](docs/images/sentry.png)
 
 ---
 
